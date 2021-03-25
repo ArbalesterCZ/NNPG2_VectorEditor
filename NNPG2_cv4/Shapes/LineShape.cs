@@ -16,9 +16,9 @@ namespace NNPG2_cv4
         {
             this.start = start;
             this.end = end;
-            Primary = Color.White;
-            Secondary = Color.Gray;
-            Edge = Color.Black;
+            Primary = Color.Transparent;
+            Secondary = Color.Transparent;
+            Edge = Color.White;
             Mode = BrushType.Solid;
         }
 

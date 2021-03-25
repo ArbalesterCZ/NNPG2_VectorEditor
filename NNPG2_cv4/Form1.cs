@@ -15,7 +15,7 @@ namespace NNPG2_cv4
         private Point start;
         private Point end;
 
-        private Color backgroundColor = Color.WhiteSmoke;
+        private Color backgroundColor = Color.Black;
 
         private Brush virtualBrush;
         private Pen virtualPen;
@@ -55,8 +55,6 @@ namespace NNPG2_cv4
                     if (shapeManager.IsFocused)
                     {    
                         start = e.Location;
-                        MouseMove -= new MouseEventHandler(Canvas_ShapeMove);
-                        MouseDown -= new MouseEventHandler(Canvas_MouseDownTransformation);
                         MouseMove += new MouseEventHandler(Canvas_ShapeMove);
                         MouseDown += new MouseEventHandler(Canvas_MouseDownTransformation);
                     }
@@ -283,11 +281,7 @@ namespace NNPG2_cv4
                     BrushType.Gradient));
                 } else if (addendShape == ShapeType.Line)
             {
-                shapeManager.Add(new LineShape(start, end,
-                    Color.White,
-                    Color.Black,
-                    Color.Black,
-                    BrushType.Solid));
+                shapeManager.Add(new LineShape(start, end));
             }
 
             Refresh();
@@ -306,9 +300,11 @@ namespace NNPG2_cv4
                     {
                         start = e.Location;
                         shapeManager.ControlPointIndex = i;
+                        MouseDown -= new MouseEventHandler(Canvas_MouseDownTransformation);
                         MouseMove -= new MouseEventHandler(Canvas_ShapeMove);
-                        MouseMove += new MouseEventHandler(Canvas_ShapeMoveTransformation);
                         MouseUp += new MouseEventHandler(Canvas_MouseUpTransformation);
+                        MouseMove += new MouseEventHandler(Canvas_ShapeMoveTransformation);
+                        return;
                     }
                 }
             }
@@ -327,8 +323,8 @@ namespace NNPG2_cv4
         {
             if (e.Button == MouseButtons.Left)
             {
-                MouseMove -= new MouseEventHandler(Canvas_ShapeMoveTransformation);
                 MouseUp -= new MouseEventHandler(Canvas_MouseUpTransformation);
+                MouseMove -= new MouseEventHandler(Canvas_ShapeMoveTransformation);               
             }
         }
 
