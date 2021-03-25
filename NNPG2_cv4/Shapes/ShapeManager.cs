@@ -22,6 +22,7 @@ namespace NNPG2_cv4
         public void Remove()
         {
             shapes.Remove(shapes[index]);
+            SetUnfocused();
         }
 
         public void SetUnfocused()

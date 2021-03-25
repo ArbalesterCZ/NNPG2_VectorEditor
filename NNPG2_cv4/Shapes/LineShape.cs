@@ -65,5 +65,10 @@ namespace NNPG2_cv4
                     break;
             }
         }
+
+        public void Render(Graphics g)
+        {
+            g.DrawLine(new Pen(Edge), start, end);
+        }
     }
 }

@@ -84,7 +84,7 @@ namespace NNPG2_cv4
             this.itemInfo.Name = "itemInfo";
             this.itemInfo.Size = new System.Drawing.Size(210, 24);
             this.itemInfo.Text = "Information";
-            this.itemInfo.Click += new System.EventHandler(this.itemInfo_Click);
+            this.itemInfo.Click += new System.EventHandler(this.ItemInfo_Click);
             // 
             // itemColor
             // 
@@ -101,21 +101,21 @@ namespace NNPG2_cv4
             this.itemColorMain.Name = "itemColorMain";
             this.itemColorMain.Size = new System.Drawing.Size(161, 26);
             this.itemColorMain.Text = "Primary";
-            this.itemColorMain.Click += new System.EventHandler(this.itemColorMain_Click);
+            this.itemColorMain.Click += new System.EventHandler(this.ItemColorMain_Click);
             // 
             // itemColorSecondary
             // 
             this.itemColorSecondary.Name = "itemColorSecondary";
             this.itemColorSecondary.Size = new System.Drawing.Size(161, 26);
             this.itemColorSecondary.Text = "Secondary";
-            this.itemColorSecondary.Click += new System.EventHandler(this.itemColorSecondary_Click);
+            this.itemColorSecondary.Click += new System.EventHandler(this.ItemColorSecondary_Click);
             // 
             // itemColorEdge
             // 
             this.itemColorEdge.Name = "itemColorEdge";
             this.itemColorEdge.Size = new System.Drawing.Size(161, 26);
             this.itemColorEdge.Text = "Edge";
-            this.itemColorEdge.Click += new System.EventHandler(this.itemColorEdge_Click);
+            this.itemColorEdge.Click += new System.EventHandler(this.ItemColorEdge_Click);
             // 
             // ItemMove
             // 
@@ -134,14 +134,14 @@ namespace NNPG2_cv4
             this.itemMoveUp.Name = "itemMoveUp";
             this.itemMoveUp.Size = new System.Drawing.Size(131, 26);
             this.itemMoveUp.Text = "Up";
-            this.itemMoveUp.Click += new System.EventHandler(this.itemMoveUp_Click);
+            this.itemMoveUp.Click += new System.EventHandler(this.ItemMoveUp_Click);
             // 
             // itemMoveDown
             // 
             this.itemMoveDown.Name = "itemMoveDown";
             this.itemMoveDown.Size = new System.Drawing.Size(131, 26);
             this.itemMoveDown.Text = "Down";
-            this.itemMoveDown.Click += new System.EventHandler(this.itemMoveDown_Click);
+            this.itemMoveDown.Click += new System.EventHandler(this.ItemMoveDown_Click);
             // 
             // toolStripSeparator2
             // 
@@ -153,14 +153,14 @@ namespace NNPG2_cv4
             this.itemMoveTop.Name = "itemMoveTop";
             this.itemMoveTop.Size = new System.Drawing.Size(131, 26);
             this.itemMoveTop.Text = "Top";
-            this.itemMoveTop.Click += new System.EventHandler(this.itemMoveTop_Click);
+            this.itemMoveTop.Click += new System.EventHandler(this.ItemMoveTop_Click);
             // 
             // itemMoveBot
             // 
             this.itemMoveBot.Name = "itemMoveBot";
             this.itemMoveBot.Size = new System.Drawing.Size(131, 26);
             this.itemMoveBot.Text = "Bot";
-            this.itemMoveBot.Click += new System.EventHandler(this.itemMoveBot_Click);
+            this.itemMoveBot.Click += new System.EventHandler(this.ItemMoveBot_Click);
             // 
             // itemFillType
             // 
@@ -175,14 +175,14 @@ namespace NNPG2_cv4
             this.comboFillType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboFillType.Name = "comboFillType";
             this.comboFillType.Size = new System.Drawing.Size(121, 28);
-            this.comboFillType.SelectedIndexChanged += new System.EventHandler(this.comboFillType_SelectedIndexChanged);
+            this.comboFillType.SelectedIndexChanged += new System.EventHandler(this.ComboFillType_SelectedIndexChanged);
             // 
             // itemDelete
             // 
             this.itemDelete.Name = "itemDelete";
             this.itemDelete.Size = new System.Drawing.Size(210, 24);
             this.itemDelete.Text = "Delete";
-            this.itemDelete.Click += new System.EventHandler(this.itemDelete_Click);
+            this.itemDelete.Click += new System.EventHandler(this.ItemDelete_Click);
             // 
             // toolStripSeparator1
             // 
@@ -204,14 +204,14 @@ namespace NNPG2_cv4
             this.itemAddRectangleObject.Name = "itemAddRectangleObject";
             this.itemAddRectangleObject.Size = new System.Drawing.Size(224, 26);
             this.itemAddRectangleObject.Text = "Rectangle";
-            this.itemAddRectangleObject.Click += new System.EventHandler(this.itemAddRectangle_Click);
+            this.itemAddRectangleObject.Click += new System.EventHandler(this.ItemAddRectangle_Click);
             // 
             // itemAddEllipseObject
             // 
             this.itemAddEllipseObject.Name = "itemAddEllipseObject";
             this.itemAddEllipseObject.Size = new System.Drawing.Size(224, 26);
             this.itemAddEllipseObject.Text = "Ellipse";
-            this.itemAddEllipseObject.Click += new System.EventHandler(this.itemAddEllipse_Click);
+            this.itemAddEllipseObject.Click += new System.EventHandler(this.ItemAddEllipse_Click);
             // 
             // toolStripSeparator4
             // 
@@ -223,7 +223,7 @@ namespace NNPG2_cv4
             this.itemBackground.Name = "itemBackground";
             this.itemBackground.Size = new System.Drawing.Size(210, 24);
             this.itemBackground.Text = "Background";
-            this.itemBackground.Click += new System.EventHandler(this.itemBackground_Click);
+            this.itemBackground.Click += new System.EventHandler(this.ItemBackground_Click);
             // 
             // ContextCanvas
             // 
@@ -250,21 +250,21 @@ namespace NNPG2_cv4
             this.itemAddRectangle.Name = "itemAddRectangle";
             this.itemAddRectangle.Size = new System.Drawing.Size(224, 26);
             this.itemAddRectangle.Text = "Rectangle";
-            this.itemAddRectangle.Click += new System.EventHandler(this.itemAddRectangle_Click);
+            this.itemAddRectangle.Click += new System.EventHandler(this.ItemAddRectangle_Click);
             // 
             // itemAddEllipse
             // 
             this.itemAddEllipse.Name = "itemAddEllipse";
             this.itemAddEllipse.Size = new System.Drawing.Size(224, 26);
             this.itemAddEllipse.Text = "Ellipse";
-            this.itemAddEllipse.Click += new System.EventHandler(this.itemAddEllipse_Click);
+            this.itemAddEllipse.Click += new System.EventHandler(this.ItemAddEllipse_Click);
             // 
             // itemAddLine
             // 
             this.itemAddLine.Name = "itemAddLine";
             this.itemAddLine.Size = new System.Drawing.Size(224, 26);
             this.itemAddLine.Text = "Line";
-            this.itemAddLine.Click += new System.EventHandler(this.itemAddLine_Click);
+            this.itemAddLine.Click += new System.EventHandler(this.ItemAddLine_Click);
             // 
             // toolStripSeparator3
             // 
@@ -276,14 +276,14 @@ namespace NNPG2_cv4
             this.itemBackgroundC.Name = "itemBackgroundC";
             this.itemBackgroundC.Size = new System.Drawing.Size(157, 24);
             this.itemBackgroundC.Text = "Background";
-            this.itemBackgroundC.Click += new System.EventHandler(this.itemBackground_Click);
+            this.itemBackgroundC.Click += new System.EventHandler(this.ItemBackground_Click);
             // 
             // itemAddLineObject
             // 
             this.itemAddLineObject.Name = "itemAddLineObject";
             this.itemAddLineObject.Size = new System.Drawing.Size(224, 26);
             this.itemAddLineObject.Text = "Line";
-            this.itemAddLineObject.Click += new System.EventHandler(this.itemAddLine_Click);
+            this.itemAddLineObject.Click += new System.EventHandler(this.ItemAddLine_Click);
             // 
             // Canvas
             // 
@@ -294,7 +294,7 @@ namespace NNPG2_cv4
             this.Name = "Canvas";
             this.Text = "Vector Editor";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Canvas_Paint);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.canvas_KeyDown);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Canvas_KeyDown);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Canvas_MouseClick);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Canvas_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Canvas_MouseMove);

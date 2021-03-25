@@ -93,5 +93,11 @@ namespace NNPG2_cv4
                     break;
             }
         }
+
+        public void Render(Graphics g)
+        {
+            g.FillRectangle(Brush(), rect);
+            g.DrawRectangle(new Pen(Edge), rect);
+        }
     }
 }

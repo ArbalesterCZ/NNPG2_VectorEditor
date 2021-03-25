@@ -9,6 +9,8 @@ namespace NNPG2_cv4
         Color Edge { get; set; }
         BrushType Mode { get; set; }
 
+        void Render(Graphics g);
+
         bool Contains(Point p);
 
         Point[] ControlPoints();

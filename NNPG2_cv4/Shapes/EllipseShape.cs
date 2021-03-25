@@ -97,5 +97,11 @@ namespace NNPG2_cv4
                     break;
             }
         }
+
+        public void Render(Graphics g)
+        {
+            g.FillEllipse(Brush(), rect);
+            g.DrawEllipse(new Pen(Edge), rect);
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace NNPG2_cv4
         private readonly Size controlPointSize = new Size(10, 10);
         private readonly Size controlPointShift = new Size(5, 5);
 
-        private readonly ShapeManager shapes = new ShapeManager();
+        private readonly ShapeManager shapeManager = new ShapeManager();
         private readonly ColorDialog colorObjectDialog = new ColorDialog();
 
         private Point start;
@@ -38,28 +38,12 @@ namespace NNPG2_cv4
             Graphics g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             g.FillRectangle(new SolidBrush(backgroundColor), 0, 0, Width, Height);
-            foreach (IShape shape in shapes)
+            foreach (IShape shape in shapeManager) shape.Render(g);
+            if (!shapeManager.IsFocused) return;
+            foreach (Point controlPoint in shapeManager.Focused.ControlPoints())
             {
-                if (shape is RectangleShape rs)
-                {    
-                    g.FillRectangle(rs.Brush(), rs.rect);
-                    g.DrawRectangle(new Pen(rs.Edge), rs.rect);
-                }
-                else if(shape is EllipseShape es)
-                {
-                    g.FillEllipse(es.Brush(), es.rect);
-                    g.DrawEllipse(new Pen(es.Edge), es.rect);
-                }
-                else if (shape is LineShape ls)
-                {
-                    g.DrawLine(new Pen(ls.Edge), ls.start, ls.end);
-                }
-            }
-            if (!shapes.IsFocused) return;
-            foreach (Point point in shapes.Focused.ControlPoints())
-            {
-                e.Graphics.FillEllipse(Brushes.White, new Rectangle(point - controlPointShift, controlPointSize));
-                e.Graphics.DrawEllipse(Pens.Black, new Rectangle(point - controlPointShift, controlPointSize));
+                g.FillEllipse(Brushes.White, new Rectangle(controlPoint - controlPointShift, controlPointSize));
+                g.DrawEllipse(Pens.Black, new Rectangle(controlPoint - controlPointShift, controlPointSize));
             }
         }
         private void Canvas_MouseDown(object sender, MouseEventArgs e)
@@ -67,8 +51,8 @@ namespace NNPG2_cv4
             switch (e.Button)
             {             
                 case MouseButtons.Left:
-                    shapes.RenderFocusShape(e.Location);
-                    if (shapes.IsFocused)
+                    shapeManager.RenderFocusShape(e.Location);
+                    if (shapeManager.IsFocused)
                     {    
                         start = e.Location;
                         MouseMove -= new MouseEventHandler(Canvas_ShapeMove);
@@ -78,7 +62,7 @@ namespace NNPG2_cv4
                     }
                     break;
                 case MouseButtons.Right:
-                    shapes.RenderFocusShape(e.Location);
+                    shapeManager.RenderFocusShape(e.Location);
                     break;
                 default:
                     return;
@@ -93,7 +77,7 @@ namespace NNPG2_cv4
 
         private void Canvas_ShapeMove(object sender, MouseEventArgs e)
         {
-            shapes.Focused.TransformMove(new Size(e.X - start.X, e.Y - start.Y));
+            shapeManager.Focused.TransformMove(new Size(e.X - start.X, e.Y - start.Y));
             start = e.Location;
             Refresh();
         }
@@ -111,9 +95,9 @@ namespace NNPG2_cv4
             switch(e.Button)
             {
                 case MouseButtons.Right:               
-                    if (shapes.IsFocused)
+                    if (shapeManager.IsFocused)
                     {
-                        comboFillType.SelectedItem = shapes.Focused.Mode;
+                        comboFillType.SelectedItem = shapeManager.Focused.Mode;
                         ContextObject.Show(this, e.Location);
                     }
                     else
@@ -124,31 +108,31 @@ namespace NNPG2_cv4
             }
         }
 
-        private void itemMoveUp_Click(object sender, EventArgs e)
+        private void ItemMoveUp_Click(object sender, EventArgs e)
         {
-            shapes.MoveUp();
+            shapeManager.MoveUp();
             Refresh();
         }
 
-        private void itemMoveDown_Click(object sender, EventArgs e)
+        private void ItemMoveDown_Click(object sender, EventArgs e)
         {
-            shapes.MoveDown();
+            shapeManager.MoveDown();
             Refresh();
         }
 
-        private void itemMoveTop_Click(object sender, EventArgs e)
+        private void ItemMoveTop_Click(object sender, EventArgs e)
         {
-            shapes.MoveTop();
+            shapeManager.MoveTop();
             Refresh();
         }
 
-        private void itemMoveBot_Click(object sender, EventArgs e)
+        private void ItemMoveBot_Click(object sender, EventArgs e)
         {
-            shapes.MoveBot();
+            shapeManager.MoveBot();
             Refresh();
         }
 
-        private void itemBackground_Click(object sender, EventArgs e)
+        private void ItemBackground_Click(object sender, EventArgs e)
         {
             colorObjectDialog.Color = backgroundColor;
             if (colorObjectDialog.ShowDialog() == DialogResult.OK)
@@ -158,64 +142,64 @@ namespace NNPG2_cv4
             }
         }
 
-        private void itemInfo_Click(object sender, EventArgs e)
+        private void ItemInfo_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, shapes.Focused.ToString(), "Information");
+            MessageBox.Show(this, shapeManager.Focused.ToString(), "Information");
         }
 
-        private void itemDelete_Click(object sender, EventArgs e)
+        private void ItemDelete_Click(object sender, EventArgs e)
         {
             DeleteMessage();
         }
 
-        private void itemColorMain_Click(object sender, EventArgs e)
+        private void ItemColorMain_Click(object sender, EventArgs e)
         {
-            colorObjectDialog.Color = shapes.Focused.Primary;
+            colorObjectDialog.Color = shapeManager.Focused.Primary;
             if (colorObjectDialog.ShowDialog() == DialogResult.OK)
             {
-                shapes.Focused.Primary = colorObjectDialog.Color;
+                shapeManager.Focused.Primary = colorObjectDialog.Color;
                 Refresh();
             }
         }
 
-        private void itemColorSecondary_Click(object sender, EventArgs e)
+        private void ItemColorSecondary_Click(object sender, EventArgs e)
         {
-            colorObjectDialog.Color = shapes.Focused.Secondary;
+            colorObjectDialog.Color = shapeManager.Focused.Secondary;
             if (colorObjectDialog.ShowDialog() == DialogResult.OK)
             {
-                shapes.Focused.Secondary = colorObjectDialog.Color;
+                shapeManager.Focused.Secondary = colorObjectDialog.Color;
                 Refresh();
             }
         }
 
-        private void itemColorEdge_Click(object sender, EventArgs e)
+        private void ItemColorEdge_Click(object sender, EventArgs e)
         {
-            colorObjectDialog.Color = shapes.Focused.Edge;
+            colorObjectDialog.Color = shapeManager.Focused.Edge;
             if (colorObjectDialog.ShowDialog() == DialogResult.OK)
             {
-                shapes.Focused.Edge = colorObjectDialog.Color;
+                shapeManager.Focused.Edge = colorObjectDialog.Color;
                 Refresh();
             }
         }
 
-        private void comboFillType_SelectedIndexChanged(object sender, EventArgs e)
+        private void ComboFillType_SelectedIndexChanged(object sender, EventArgs e)
         {
             BrushType brushType = (BrushType) comboFillType.SelectedItem;
-            if (brushType == shapes.Focused.Mode) return;
-            shapes.Focused.Mode = brushType;
+            if (brushType == shapeManager.Focused.Mode) return;
+            shapeManager.Focused.Mode = brushType;
             Refresh();
         }
 
-        private void itemAddRectangle_Click(object sender, EventArgs e)
+        private void ItemAddRectangle_Click(object sender, EventArgs e)
         {
             InitVirtualDrawing(ShapeType.Rectangle);
         }
 
-        private void itemAddEllipse_Click(object sender, EventArgs e)
+        private void ItemAddEllipse_Click(object sender, EventArgs e)
         {
             InitVirtualDrawing(ShapeType.Ellipse);
         }
-        private void itemAddLine_Click(object sender, EventArgs e)
+        private void ItemAddLine_Click(object sender, EventArgs e)
         {
             InitVirtualDrawing(ShapeType.Line);
         }
@@ -285,21 +269,21 @@ namespace NNPG2_cv4
             Rectangle virtualRect = Rectangle.FromLTRB(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y), Math.Max(start.X, end.X), Math.Max(start.Y, end.Y));
             if (addendShape == ShapeType.Rectangle)
             {
-                shapes.Add(new RectangleShape(virtualRect,
+                shapeManager.Add(new RectangleShape(virtualRect,
                     Color.White,
                     Color.Black,
                     Color.Black,
                     BrushType.Gradient));
             } else if(addendShape == ShapeType.Ellipse)
                 {
-                shapes.Add(new EllipseShape(virtualRect,
+                shapeManager.Add(new EllipseShape(virtualRect,
                     Color.White,
                     Color.Black,
                     Color.Black,
                     BrushType.Gradient));
                 } else if (addendShape == ShapeType.Line)
             {
-                shapes.Add(new LineShape(start, end,
+                shapeManager.Add(new LineShape(start, end,
                     Color.White,
                     Color.Black,
                     Color.Black,
@@ -314,14 +298,14 @@ namespace NNPG2_cv4
             if (e.Button == MouseButtons.Left)
             {
                 Refresh();
-                if (!shapes.IsFocused) return;
-                Point[] points = shapes.Focused.ControlPoints();
+                if (!shapeManager.IsFocused) return;
+                Point[] points = shapeManager.Focused.ControlPoints();
                 for (int i = 0; i < points.Length; i++)
                 {
                     if(Library.DistancePoint(points[i], e.Location) <= 15)
                     {
                         start = e.Location;
-                        shapes.ControlPointIndex = i;
+                        shapeManager.ControlPointIndex = i;
                         MouseMove -= new MouseEventHandler(Canvas_ShapeMove);
                         MouseMove += new MouseEventHandler(Canvas_ShapeMoveTransformation);
                         MouseUp += new MouseEventHandler(Canvas_MouseUpTransformation);
@@ -332,9 +316,9 @@ namespace NNPG2_cv4
 
         private void Canvas_ShapeMoveTransformation(object sender, MouseEventArgs e)
         {
-            IShape shape = shapes.Focused;
+            IShape shape = shapeManager.Focused;
             Size addend = new Size(e.X - start.X, e.Y - start.Y);
-            shape.TransformScale(addend, shapes.ControlPointIndex);
+            shape.TransformScale(addend, shapeManager.ControlPointIndex);
             start = e.Location;
             Refresh();
         }
@@ -348,12 +332,12 @@ namespace NNPG2_cv4
             }
         }
 
-        private void canvas_KeyDown(object sender, KeyEventArgs e)
+        private void Canvas_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
                 case Keys.Delete:
-                    if(shapes.IsFocused)
+                    if(shapeManager.IsFocused)
                     {
                         MouseMove -= new MouseEventHandler(Canvas_ShapeMove);
                         DeleteMessage();
@@ -369,8 +353,7 @@ namespace NNPG2_cv4
             MessageBoxButtons buttons = MessageBoxButtons.YesNo;
             if (MessageBox.Show(message, title, buttons) == DialogResult.Yes)
             {
-                shapes.Remove();
-                shapes.SetUnfocused();
+                shapeManager.Remove();
                 Refresh();
             }
         }
