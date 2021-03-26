@@ -61,7 +61,7 @@
     <Compile Include="Library\Library.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Shapes\Shape.cs" />
+    <Compile Include="Shapes\IShape.cs" />
     <Compile Include="Shapes\ShapeManager.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

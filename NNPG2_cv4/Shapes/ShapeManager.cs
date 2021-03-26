@@ -14,6 +14,15 @@ namespace NNPG2_cv4
         private int index = -1;
         private readonly List<IShape> shapes = new List<IShape>();
 
+        public void Duplicate()
+        {
+            if(IsFocused)
+            {
+                shapes.Add(Focused.DeepCopy());
+                index = shapes.Count - 1;
+            }
+        }
+
         public void Add(IShape shape)
         {
             shapes.Add(shape);
@@ -22,11 +31,6 @@ namespace NNPG2_cv4
         public void Remove()
         {
             shapes.Remove(shapes[index]);
-            SetUnfocused();
-        }
-
-        public void SetUnfocused()
-        {
             index = -1;
         }
 
@@ -90,7 +94,7 @@ namespace NNPG2_cv4
                     return;
                 }
             } 
-            SetUnfocused();
+            index = -1;
         }
 
         public IEnumerator<IShape> GetEnumerator()

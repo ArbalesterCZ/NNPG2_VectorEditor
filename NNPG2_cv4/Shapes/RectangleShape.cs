@@ -6,10 +6,14 @@ namespace NNPG2_cv4
 {
     public class RectangleShape : IShape
     {
+        public Brush Fill { get; set; }
+        public BrushType Mode { get; set; }
         public Color Primary { get; set; }
         public Color Secondary { get; set; }
-        public Color Edge { get; set; }
-        public BrushType Mode { get; set; }
+        public Pen Edge { get; }
+        public Color EdgeColor { get { return Edge.Color; } set { Edge.Color = value; } }
+        public float EdgeWidth { get { return Edge.Width; } set { Edge.Width = value; } }
+        public Size Size { get { return rect.Size; } }
 
         public Rectangle rect;
 
@@ -20,7 +24,7 @@ namespace NNPG2_cv4
             this.rect = rect;
             Primary = Color.White;
             Secondary = Color.Gray;
-            Edge = Color.Black;
+            Edge = new Pen(Color.White);
             Mode = BrushType.Solid;
         }
 
@@ -28,7 +32,7 @@ namespace NNPG2_cv4
         {
             this.rect = rect;
             Primary = primary;
-            Edge = edge;
+            Edge = new Pen(edge);
             Secondary = secondary;
             Mode = mode;
         }
@@ -97,7 +101,19 @@ namespace NNPG2_cv4
         public void Render(Graphics g)
         {
             g.FillRectangle(Brush(), rect);
-            g.DrawRectangle(new Pen(Edge), rect);
+            g.DrawRectangle(Edge, rect);
+        }
+
+        public void RenderIsolation(Graphics g)
+        {
+            Rectangle isolated = new Rectangle(0, 0, rect.Width, rect.Height);
+            g.FillRectangle(Brush(), isolated);
+            g.DrawRectangle(Edge, isolated);
+        }
+
+        public IShape DeepCopy()
+        {
+            return new RectangleShape(rect, Primary, Secondary, EdgeColor, Mode);
         }
     }
 }

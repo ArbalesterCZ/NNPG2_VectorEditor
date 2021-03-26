@@ -1,5 +1,5 @@
 ﻿using System.Drawing;
-
+using System.Windows.Forms;
 using static System.Math;
 
 namespace NNPG2_cv4
@@ -36,6 +36,22 @@ namespace NNPG2_cv4
                 dy = pt.Y - closest.Y;
             }
             return Sqrt(dx * dx + dy * dy);
+        }
+        public static bool SaveDialog(out string filePath)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "bmp files (*.bmp)|*.bmp|All files (*.*)|*.*",
+                RestoreDirectory = true
+            };
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                filePath = saveFileDialog.FileName;
+                return true;
+            }
+            filePath = "";
+            return false;
         }
     }
 }

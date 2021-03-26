@@ -35,16 +35,7 @@ namespace NNPG2_cv4
 
         private void Canvas_Paint(object sender, PaintEventArgs e)
         {
-            Graphics g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            g.FillRectangle(new SolidBrush(backgroundColor), 0, 0, Width, Height);
-            foreach (IShape shape in shapeManager) shape.Render(g);
-            if (!shapeManager.IsFocused) return;
-            foreach (Point controlPoint in shapeManager.Focused.ControlPoints())
-            {
-                g.FillEllipse(Brushes.White, new Rectangle(controlPoint - controlPointShift, controlPointSize));
-                g.DrawEllipse(Pens.Black, new Rectangle(controlPoint - controlPointShift, controlPointSize));
-            }
+            Render(e.Graphics);
         }
         private void Canvas_MouseDown(object sender, MouseEventArgs e)
         {
@@ -95,7 +86,10 @@ namespace NNPG2_cv4
                 case MouseButtons.Right:               
                     if (shapeManager.IsFocused)
                     {
+                        if(shapeManager.Focused is LineShape) itemFill.Visible = false;
+                        else itemFill.Visible = true;
                         comboFillType.SelectedItem = shapeManager.Focused.Mode;
+                        textBoxEdgeWidth.Text = shapeManager.Focused.EdgeWidth.ToString();
                         ContextObject.Show(this, e.Location);
                     }
                     else
@@ -150,7 +144,7 @@ namespace NNPG2_cv4
             DeleteMessage();
         }
 
-        private void ItemColorMain_Click(object sender, EventArgs e)
+        private void ItemColorPrimary_Click(object sender, EventArgs e)
         {
             colorObjectDialog.Color = shapeManager.Focused.Primary;
             if (colorObjectDialog.ShowDialog() == DialogResult.OK)
@@ -172,10 +166,10 @@ namespace NNPG2_cv4
 
         private void ItemColorEdge_Click(object sender, EventArgs e)
         {
-            colorObjectDialog.Color = shapeManager.Focused.Edge;
+            colorObjectDialog.Color = shapeManager.Focused.Edge.Color;
             if (colorObjectDialog.ShowDialog() == DialogResult.OK)
             {
-                shapeManager.Focused.Edge = colorObjectDialog.Color;
+                shapeManager.Focused.EdgeColor = colorObjectDialog.Color;
                 Refresh();
             }
         }
@@ -339,6 +333,9 @@ namespace NNPG2_cv4
                         DeleteMessage();
                     }
                     break;
+                case Keys.D:
+                    if (ModifierKeys.HasFlag(Keys.Control)) shapeManager.Duplicate();
+                    break;
             }          
         }
 
@@ -346,11 +343,68 @@ namespace NNPG2_cv4
         {
             string message = "Do you want to delete the shape?";
             string title = "Delete Shape";
-            MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-            if (MessageBox.Show(message, title, buttons) == DialogResult.Yes)
+            if (MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 shapeManager.Remove();
                 Refresh();
+            }
+        }
+
+        private void TextBoxEdgeWidth_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != ','))
+            {
+                e.Handled = true;
+            }
+            if ((e.KeyChar == ',') && (sender.ToString().IndexOf(',') != -1))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void TextBoxEdgeWidth_TextChanged(object sender, EventArgs e)
+        {
+            if (float.TryParse(sender.ToString(), out float result))
+            {
+                shapeManager.Focused.EdgeWidth = result;
+                Refresh();
+            }
+        }
+
+        private void ItemExportCanvas_Click(object sender, EventArgs e)
+        {
+            if (Library.SaveDialog(out string filepath))
+            {
+                Bitmap bmp = new Bitmap(Width, Height);
+                Graphics g = Graphics.FromImage(bmp);
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                Render(g);
+                bmp.Save(filepath);
+            }
+        }
+
+        private void ItemExportObject_Click(object sender, EventArgs e)
+        {
+            if(Library.SaveDialog(out string filepath))
+            {
+                IShape shape = shapeManager.Focused;
+                Bitmap bmp = new Bitmap(shape.Size.Width, shape.Size.Height);
+                Graphics g = Graphics.FromImage(bmp);
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                shape.RenderIsolation(g);
+                bmp.Save(filepath);
+            }
+        }
+        private void Render(Graphics g)
+        {
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.FillRectangle(new SolidBrush(backgroundColor), 0, 0, Width, Height);
+            foreach (IShape shape in shapeManager) shape.Render(g);
+            if (!shapeManager.IsFocused) return;
+            foreach (Point controlPoint in shapeManager.Focused.ControlPoints())
+            {
+                g.FillEllipse(Brushes.White, new Rectangle(controlPoint - controlPointShift, controlPointSize));
+                g.DrawEllipse(Pens.Black, new Rectangle(controlPoint - controlPointShift, controlPointSize));
             }
         }
     }
