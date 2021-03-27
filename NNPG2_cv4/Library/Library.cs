@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 using static System.Math;
@@ -7,6 +8,7 @@ namespace NNPG2_cv4
 {
     static class Library
     {
+        public static readonly Image DEFAULT_TEXTURE = Image.FromFile(Directory.GetCurrentDirectory() + @"\..\..\rsc\btntreant-result.bmp");
         public static double DistancePoint(Point p1, Point p2)
         {
             return Sqrt(Pow(p1.X - p2.X, 2) + Pow(p1.Y - p2.Y, 2));
@@ -38,10 +40,10 @@ namespace NNPG2_cv4
             }
             return Sqrt(dx * dx + dy * dy);
         }
-        public static bool FileDialog(FileDialog fileDialog, out string filePath)
+        public static bool FileDialog(FileDialog fileDialog, string filter, out string filePath)
         {
             filePath = "";
-            fileDialog.Filter = "Image Files(*.BMP;*.JPG;*.GIF)|*.BMP;*.JPG;*.GIF|All files (*.*)|*.*";
+            fileDialog.Filter = filter;
 
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -49,6 +51,34 @@ namespace NNPG2_cv4
                 return true;
             }
             return false;
+        }
+        public static void SaveImage(Image image, string path)
+        {
+            string ext = Path.GetExtension(path).ToLower();
+            switch (ext)
+            {
+                case ".jpg":
+                    image.Save(path, ImageFormat.Jpeg);
+                    break;
+                case ".jpeg":
+                    image.Save(path, ImageFormat.Jpeg);
+                    break;
+                case ".gif":
+                    image.Save(path, ImageFormat.Gif);
+                    break;
+                case ".png":
+                    image.Save(path, ImageFormat.Png);
+                    break;
+                case ".bmp":
+                    image.Save(path, ImageFormat.Bmp);
+                    break;
+                case ".tiff":
+                    image.Save(path, ImageFormat.Tiff);
+                    break;
+                default:
+                    image.Save(path);
+                    break;
+            }           
         }
     }
 }

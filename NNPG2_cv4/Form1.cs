@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace NNPG2_cv4
@@ -20,13 +21,17 @@ namespace NNPG2_cv4
         private Brush virtualBrush;
         private Pen virtualPen;
 
-        private SaveFileDialog saveDialog = new SaveFileDialog();
-        private OpenFileDialog openDialog = new OpenFileDialog();
+        private readonly SaveFileDialog saveDialog = new SaveFileDialog();
+        private readonly OpenFileDialog openDialog = new OpenFileDialog();
+
+        private readonly string SAVE_FILTER = "JPEG (*.JPG;*.JPEG)|*.jpg;*.JPEG|GIF (*.GIF)|*.gif|PNG (*.PNG)|*.png|BMP (*.BMP)|*.bmp|TIFF (*.TIFF)|*.tigg";
+        private readonly string LOAD_FILTER = "Image Files(*.JPG;*.GIF;*.PNG;*.BMP;*.TIFF)|*.JPG;*.JPEG;*.GIF;*.PNG;*.BMP;*.TIFF|All files (*.*)|*.*";
 
         private ShapeType addendShape;
         public Canvas()
         {
             InitializeComponent();
+            HatchInit();
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
 
             BrushType[] types = (BrushType[])Enum.GetValues(typeof(BrushType));         
@@ -43,14 +48,14 @@ namespace NNPG2_cv4
         private void Canvas_MouseDown(object sender, MouseEventArgs e)
         {
             switch (e.Button)
-            {             
+            {
                 case MouseButtons.Left:
                     shapeManager.RenderFocusShape(e.Location);
                     if (shapeManager.IsFocused)
-                    {    
+                    {
                         start = e.Location;
-                        MouseMove += new MouseEventHandler(Canvas_ShapeMove);
-                        MouseDown += new MouseEventHandler(Canvas_MouseDownTransformation);
+                        if (shapeManager.IsFocusControlPoint(e.Location)) InitTransformation(e.Location);
+                        else MouseMove += new MouseEventHandler(Canvas_ShapeMove);                
                     }
                     break;
                 case MouseButtons.Right:
@@ -58,7 +63,7 @@ namespace NNPG2_cv4
                     break;
                 default:
                     return;
-            }     
+            }
             Refresh();
         }
 
@@ -86,19 +91,9 @@ namespace NNPG2_cv4
         {
             switch(e.Button)
             {
-                case MouseButtons.Right:               
-                    if (shapeManager.IsFocused)
-                    {
-                        if(shapeManager.Focused is LineShape) itemFill.Visible = false;
-                        else itemFill.Visible = true;
-                        comboFillType.SelectedItem = shapeManager.Focused.Mode;
-                        textBoxEdgeWidth.Text = shapeManager.Focused.EdgeWidth.ToString();
-                        ContextObject.Show(this, e.Location);
-                    }
-                    else
-                    {
-                        ContextCanvas.Show(this, e.Location);
-                    }
+                case MouseButtons.Right:         
+                    RenderContextMenu(shapeManager.IsFocused);
+                    ContextObject.Show(this, e.Location);
                     break;
             }
         }
@@ -134,7 +129,7 @@ namespace NNPG2_cv4
 
         private void ItemDelete_Click(object sender, EventArgs e)
         {
-            DeleteMessage();
+            SubmitDelete();
         }
 
         private void ItemColorPrimary_Click(object sender, EventArgs e)
@@ -169,15 +164,82 @@ namespace NNPG2_cv4
 
         private void ComboFillType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            BrushType brushType = (BrushType) comboFillType.SelectedItem;
+            BrushType brushType = (BrushType)comboFillType.SelectedItem;
             if (brushType == shapeManager.Focused.Mode) return;
-
-            if (brushType < (BrushType)1) { itemChangeTexture.Visible = false; itemSecondaryColor.Visible = false; }
-            else if (brushType < (BrushType)3) { itemChangeTexture.Visible = false; itemSecondaryColor.Visible = true; }
-            else { itemChangeTexture.Visible = true; itemSecondaryColor.Visible = true; }
-
             shapeManager.Focused.Mode = brushType;
+            RenderContextMenu(shapeManager.IsFocused);
             Refresh();
+        }
+
+        private void RenderContextMenu(bool isShapeFocused)
+        {
+            itemSeparator.Visible = isShapeFocused;
+            itemExportObject.Visible = isShapeFocused;
+            itemDelete.Visible = isShapeFocused;
+            ItemMove.Visible = isShapeFocused;
+            itemEdge.Visible = isShapeFocused;
+            itemFill.Visible = isShapeFocused;
+            itemInfo.Visible = isShapeFocused;
+
+            if (isShapeFocused)
+            {
+                switch(shapeManager.Focused.Mode)
+                {
+                    case BrushType.Solid:
+                        itemPrimaryColor.Visible = true;
+                        itemSecondaryColor.Visible = false;
+                        itemChangeTexture.Visible = false;
+                        itemAngle.Visible = false;
+                        itemHatchStyle.Visible = false;
+                        break;
+                    case BrushType.Hatch:
+                        itemPrimaryColor.Visible = true;
+                        itemSecondaryColor.Visible = true;
+                        itemChangeTexture.Visible = false;
+                        itemAngle.Visible = false;
+                        itemHatchStyle.Visible = true;
+                        break;
+                    case BrushType.Gradient:
+                        itemPrimaryColor.Visible = true;
+                        itemSecondaryColor.Visible = true;
+                        itemChangeTexture.Visible = false;
+                        itemAngle.Visible = true;
+                        itemAngle.Text = shapeManager.Focused.FillAngle.ToString();
+                        itemHatchStyle.Visible = false;
+                        break;
+                    case BrushType.Texture:
+                        itemPrimaryColor.Visible = false;
+                        itemSecondaryColor.Visible = false;
+                        itemChangeTexture.Visible = true;
+                        itemAngle.Visible = false;
+                        itemHatchStyle.Visible = false;
+                        break;
+                }
+                comboFillType.SelectedItem = shapeManager.Focused.Mode;
+                textBoxEdgeWidth.Text = shapeManager.Focused.EdgeWidth.ToString();
+                itemEdgeEnable.Checked = shapeManager.Focused.EdgeEnabled;
+                bool isLine = shapeManager.Focused is LineShape;
+
+                SetItemColor(itemPrimaryColor, shapeManager.Focused.Primary);
+                SetItemColor(itemSecondaryColor, shapeManager.Focused.Secondary);
+                SetItemColor(itemEdgeColor, shapeManager.Focused.EdgeColor);
+
+                itemEdgeEnable.Visible = !isLine;
+                itemFill.Visible = !isLine;
+
+                Bitmap bm = new Bitmap(30, 30);
+                Graphics gr = Graphics.FromImage(bm);
+                gr.FillRectangle(new HatchBrush(shapeManager.Focused.Hatch, shapeManager.Focused.Primary, shapeManager.Focused.Secondary), new Rectangle(0, 0, 30, 30));
+                itemHatchStyle.Image = Image.FromHbitmap(bm.GetHbitmap());
+            }
+        }
+
+        private void SetItemColor(ToolStripMenuItem item, Color color)
+        {
+            Bitmap bm = new Bitmap(20, 30);
+            Graphics g = Graphics.FromImage(bm);
+            g.FillRectangle(new SolidBrush(color), new Rectangle(0, 0, 20, 30));
+            item.Image = Image.FromHbitmap(bm.GetHbitmap());
         }
 
         private void ItemAddRectangle_Click(object sender, EventArgs e)
@@ -197,6 +259,7 @@ namespace NNPG2_cv4
         private void InitVirtualDrawing(ShapeType type)
         {
             MouseDown -= new MouseEventHandler(Canvas_MouseDown);
+            MouseDown -= new MouseEventHandler(Canvas_MouseDownVirtual);
             MouseDown += new MouseEventHandler(Canvas_MouseDownVirtual);
             virtualBrush = new SolidBrush(Color.FromArgb(
                 128,
@@ -257,42 +320,39 @@ namespace NNPG2_cv4
             MouseDown += new MouseEventHandler(Canvas_MouseDown);
 
             Rectangle virtualRect = Rectangle.FromLTRB(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y), Math.Max(start.X, end.X), Math.Max(start.Y, end.Y));
-            if (addendShape == ShapeType.Rectangle)
+            switch (addendShape)
             {
-                shapeManager.Add(new RectangleShape(virtualRect));
-            } else if(addendShape == ShapeType.Ellipse)
-            {
-                shapeManager.Add(new EllipseShape(virtualRect));
-            } else if (addendShape == ShapeType.Line)
-            {
-                shapeManager.Add(new LineShape(start, end));
+                case ShapeType.Rectangle:
+                    shapeManager.Add(new RectangleShape(virtualRect));
+                    break;
+                case ShapeType.Ellipse:
+                    shapeManager.Add(new EllipseShape(virtualRect));
+                    break;
+                case ShapeType.Line:
+                    shapeManager.Add(new LineShape(start, end));
+                    break;
             }
             Refresh();
         }
 
-        private void Canvas_MouseDownTransformation(object sender, MouseEventArgs e)
+        private void InitTransformation(Point coor)
         {
-            if (e.Button == MouseButtons.Left)
+            Refresh();
+            if (!shapeManager.IsFocused) return;
+            Point[] points = shapeManager.Focused.ControlPoints();
+            for (int i = 0; i < points.Length; i++)
             {
-                Refresh();
-                if (!shapeManager.IsFocused) return;
-                Point[] points = shapeManager.Focused.ControlPoints();
-                for (int i = 0; i < points.Length; i++)
+                if (Library.DistancePoint(points[i], coor) <= 15)
                 {
-                    if(Library.DistancePoint(points[i], e.Location) <= 15)
-                    {
-                        start = e.Location;
-                        shapeManager.ControlPointIndex = i;
-                        MouseDown -= new MouseEventHandler(Canvas_MouseDownTransformation);
-                        MouseMove -= new MouseEventHandler(Canvas_ShapeMove);
-                        MouseUp += new MouseEventHandler(Canvas_MouseUpTransformation);
-                        MouseMove += new MouseEventHandler(Canvas_ShapeMoveTransformation);
-                        return;
-                    }
+                    start = coor;
+                    shapeManager.ControlPointIndex = i;
+                    MouseMove -= new MouseEventHandler(Canvas_ShapeMove);
+                    MouseUp += new MouseEventHandler(Canvas_MouseUpTransformation);
+                    MouseMove += new MouseEventHandler(Canvas_ShapeMoveTransformation);
+                    return;
                 }
             }
         }
-
         private void Canvas_ShapeMoveTransformation(object sender, MouseEventArgs e)
         {
             IShape shape = shapeManager.Focused;
@@ -310,7 +370,6 @@ namespace NNPG2_cv4
                 MouseMove -= new MouseEventHandler(Canvas_ShapeMoveTransformation);               
             }
         }
-
         private void Canvas_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -319,7 +378,7 @@ namespace NNPG2_cv4
                     if(shapeManager.IsFocused)
                     {
                         MouseMove -= new MouseEventHandler(Canvas_ShapeMove);
-                        DeleteMessage();
+                        SubmitDelete();
                     }
                     break;
                 case Keys.D:
@@ -328,7 +387,7 @@ namespace NNPG2_cv4
             }          
         }
 
-        private void DeleteMessage()
+        private void SubmitDelete()
         {
             string message = "Do you want to delete the shape?";
             string title = "Delete Shape";
@@ -339,7 +398,7 @@ namespace NNPG2_cv4
             }
         }
 
-        private void TextBoxEdgeWidth_KeyPress(object sender, KeyPressEventArgs e)
+        private void TextBoxOnlyNumber_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != ','))
             {
@@ -362,27 +421,29 @@ namespace NNPG2_cv4
 
         private void ItemExportCanvas_Click(object sender, EventArgs e)
         {
-            if (Library.FileDialog(saveDialog, out string filepath))
+            saveDialog.FileName = string.Format("Canvas {0}x{1}", ClientSize.Width, ClientSize.Height);
+            if (Library.FileDialog(saveDialog, SAVE_FILTER, out string filepath))
             {
-                Bitmap bmp = new Bitmap(Width, Height);
+                Bitmap bmp = new Bitmap(ClientSize.Width, ClientSize.Height);
                 Graphics g = Graphics.FromImage(bmp);
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
                 Render(g);
-                bmp.Save(filepath);
+                Library.SaveImage(bmp, filepath);
             }
         }
 
         private void ItemExportObject_Click(object sender, EventArgs e)
         {
-            if(Library.FileDialog(saveDialog, out string filepath))
+            saveDialog.FileName = shapeManager.Focused.ToString();
+            if (Library.FileDialog(saveDialog, SAVE_FILTER, out string filepath))
             {
                 shapeManager.Focused.Export(filepath);
             }
         }
         private void Render(Graphics g)
         {
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            background.Render(g, Width, Height);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            background.Render(g, ClientSize.Width, ClientSize.Height);
             foreach (IShape shape in shapeManager) shape.Render(g);
             if (!shapeManager.IsFocused) return;
             foreach (Point controlPoint in shapeManager.Focused.ControlPoints())
@@ -404,19 +465,62 @@ namespace NNPG2_cv4
 
         private void ItemBackgroundImage_Click(object sender, EventArgs e)
         {
-            if (Library.FileDialog(openDialog, out string filepath))
+            if (Library.FileDialog(openDialog, LOAD_FILTER, out string filepath))
             {
                 background.Image = Image.FromFile(filepath);
                 Refresh();
             }
         }
 
-        private void itemChangeTexture_Click(object sender, EventArgs e)
+        private void ItemChangeTexture_Click(object sender, EventArgs e)
         {
-            if (Library.FileDialog(openDialog, out string filepath))
+            if (Library.FileDialog(openDialog, LOAD_FILTER, out string filepath))
             {
                 shapeManager.Focused.Texture = Image.FromFile(filepath);
                 Refresh();
+            }
+        }
+
+        private void itemAngle_TextChanged(object sender, EventArgs e)
+        {
+            if (float.TryParse(itemAngle.Text.ToString(), out float result))
+            {
+                shapeManager.Focused.FillAngle = result;
+                Refresh();
+            }
+        }
+
+        private void ItemEdgeEnable_Click(object sender, EventArgs e)
+        {
+            shapeManager.Focused.EdgeEnabled = !shapeManager.Focused.EdgeEnabled;
+        }
+
+        private void ItemHacth_Click(object sender, EventArgs e)
+        {
+            HatchStyle hatchStyle = (HatchStyle)((ToolStripMenuItem)sender).Tag;
+            shapeManager.Focused.Hatch = hatchStyle;
+            Bitmap bm = new Bitmap(30, 30);
+            Graphics gr = Graphics.FromImage(bm);
+            gr.FillRectangle(new HatchBrush(hatchStyle, shapeManager.Focused.Primary, shapeManager.Focused.Secondary), new Rectangle(0, 0, 30, 30));
+            itemHatchStyle.Image = Image.FromHbitmap(bm.GetHbitmap());
+        }
+        private void HatchInit()
+        {
+            for (int i = 0; i < 53; i++)
+            {
+                HatchStyle hStyle = (HatchStyle)i;
+                ToolStripMenuItem newHatchItem = new ToolStripMenuItem();
+
+                Bitmap bm = new Bitmap(30, 30);
+                Graphics gr = Graphics.FromImage(bm);
+                gr.FillRectangle(new HatchBrush(hStyle, Color.White, Color.Green), new Rectangle(0, 0, 30, 30));
+                newHatchItem.Image = Image.FromHbitmap(bm.GetHbitmap());
+                newHatchItem.Text = hStyle.ToString();
+                newHatchItem.Tag = hStyle;
+
+                newHatchItem.Click += new EventHandler(ItemHacth_Click);
+
+                itemHatchStyle.DropDownItems.Add(newHatchItem);
             }
         }
     }  

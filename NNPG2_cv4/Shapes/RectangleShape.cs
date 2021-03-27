@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.IO;
 
 namespace NNPG2_cv4
 {
@@ -8,39 +7,49 @@ namespace NNPG2_cv4
     {
         public Brush Fill { get; set; }
         public BrushType Mode { get; set; }
+        public float FillAngle { get; set; }
         public Color Primary { get; set; }
         public Color Secondary { get; set; }
         public Pen Edge { get; }
         public Color EdgeColor { get { return Edge.Color; } set { Edge.Color = value; } }
         public float EdgeWidth { get { return Edge.Width; } set { Edge.Width = value; } }
-        public Size Size { get { return rect.Size; } }
+        public bool EdgeEnabled { get; set; }
+        public Size Size { get
+            {
+                float widthAddent = 0;
+                if (EdgeEnabled) widthAddent = EdgeWidth;
+                return new Size((int)(rect.Width + widthAddent), (int)(rect.Height + widthAddent));
+            } }
         public Image Texture { set { texture = value; } }
+        public HatchStyle Hatch { get; set; }
 
         private Rectangle rect;
-
-        private Image texture = Image.FromFile(Directory.GetCurrentDirectory() + @"\..\..\rsc\btntreant-result.bmp");
+        private Image texture = Library.DEFAULT_TEXTURE;
 
         public RectangleShape(Rectangle rect)
         {
             this.rect = rect;
             Primary = Color.White;
             Secondary = Color.Black;
-            Edge = new Pen(Color.White);
+            Edge = new Pen(Color.Red);
             Mode = BrushType.Solid;
+            EdgeWidth = 4;
+            EdgeEnabled = true;
         }
 
-        public RectangleShape(Rectangle rect, Color primary, Color secondary, Color edge, BrushType mode)
+        public RectangleShape(Rectangle rect, Color primary, Color secondary, Color edge, float edgeWitdh, bool edgeEnable, BrushType mode)
         {
             this.rect = rect;
             Primary = primary;
-            Edge = new Pen(edge);
+            Edge = new Pen(edge, edgeWitdh);
             Secondary = secondary;
             Mode = mode;
+            EdgeEnabled = edgeEnable;
         }
 
         override public string ToString()
         {
-            return string.Format("{0}\nPrimary: {1}\nSecondary: {2}\n{3} Width: [{4}px]\nFill: {5}", rect, Primary, Secondary, EdgeColor, EdgeWidth, Mode);
+            return string.Format("Rectangle {0}x{1}", Size.Width, Size.Height);
         }
 
         public bool Contains(Point p)
@@ -83,28 +92,30 @@ namespace NNPG2_cv4
 
         public void Render(Graphics g)
         {
+            g.RenderingOrigin = rect.Location;
             g.FillRectangle(Brush(), rect);
-            g.DrawRectangle(Edge, rect);
+            if(EdgeEnabled) g.DrawRectangle(Edge, rect);
         }
 
         public void Export(string filepath)
         {
-            int addend = (int) (EdgeWidth / 2);
+            int addend = 0;
+            if (EdgeEnabled) addend = (int)(EdgeWidth / 2);
 
-            Bitmap bmp = new Bitmap((int)(Size.Width + EdgeWidth), (int)(Size.Height + EdgeWidth));
-            Rectangle isolated = new Rectangle(addend, addend, Size.Width, Size.Height);
+            Bitmap bmp = new Bitmap(Size.Width, Size.Height);
+            Rectangle isolated = new Rectangle(addend, addend, rect.Width, rect.Height);
 
             Graphics g = Graphics.FromImage(bmp);
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.RenderingOrigin = rect.Location;
             g.FillRectangle(IsolationBrush(), isolated);
-            g.DrawRectangle(Edge, isolated);
-            bmp.Save(filepath);
-
+            if (EdgeEnabled) g.DrawRectangle(Edge, isolated);
+            Library.SaveImage(bmp, filepath);
         }
 
         public IShape DeepCopy()
         {
-            return new RectangleShape(rect, Primary, Secondary, EdgeColor, Mode);
+            return new RectangleShape(rect, Primary, Secondary, EdgeColor, EdgeWidth, EdgeEnabled, Mode);
         }
 
         private Brush Brush()
@@ -114,9 +125,9 @@ namespace NNPG2_cv4
                 case BrushType.Solid:
                     return new SolidBrush(Primary);
                 case BrushType.Hatch:
-                    return new HatchBrush(HatchStyle.Weave, Secondary, Primary);
+                        return new HatchBrush(Hatch, Primary, Secondary);
                 case BrushType.Gradient:
-                    return new LinearGradientBrush(rect.Location, rect.Location + new Size(0, 50), Primary, Secondary);
+                    return new LinearGradientBrush(rect, Primary, Secondary, FillAngle);
                 case BrushType.Texture:
                     TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
                     tb.TranslateTransform(rect.X, rect.Y);
@@ -132,9 +143,9 @@ namespace NNPG2_cv4
                 case BrushType.Solid:
                     return new SolidBrush(Primary);
                 case BrushType.Hatch:
-                    return new HatchBrush(HatchStyle.Weave, Secondary, Primary);
+                    return new HatchBrush(Hatch, Primary, Secondary);
                 case BrushType.Gradient:
-                    return new LinearGradientBrush(new Point(), new Point(50, 50), Primary, Secondary);
+                    return new LinearGradientBrush(new Rectangle(0, 0, rect.Width, rect.Height), Primary, Secondary, FillAngle);
                 case BrushType.Texture:
                     TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
                     tb.TranslateTransform(0, 0);

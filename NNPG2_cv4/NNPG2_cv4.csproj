@@ -90,8 +90,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="rsc\btntelescope-result.bmp" />
     <Content Include="rsc\btntreant-result.bmp" />
-    <Content Include="rsc\btntreant-result.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

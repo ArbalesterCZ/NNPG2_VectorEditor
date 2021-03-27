@@ -8,6 +8,7 @@ namespace NNPG2_cv4
     {
         public Brush Fill { get; set; }
         public BrushType Mode { get; set; }
+        public float FillAngle { get; set; }
         public Color Primary { get; set; }
         public Color Secondary { get; set; }
         public Pen Edge { get;}
@@ -15,6 +16,8 @@ namespace NNPG2_cv4
         public float EdgeWidth { get { return Edge.Width; } set { Edge.Width = value; } }
         public Size Size { get { return new Size(Math.Abs(start.X - end.X), Math.Abs(start.Y - end.Y)); } }
         public Image Texture { set { _ = value; } }
+        public bool EdgeEnabled { get; set; }
+        public HatchStyle Hatch { get; set; }
 
         private Point start;
         private Point end;
@@ -23,7 +26,7 @@ namespace NNPG2_cv4
         {
             this.start = start;
             this.end = end;
-            Edge = new Pen(Color.White);
+            Edge = new Pen(Color.Red, 4);
         }
 
         public LineShape(Point start, Point end, Color edge, float width)
@@ -35,7 +38,7 @@ namespace NNPG2_cv4
 
         override public string ToString()
         {
-            return string.Format("Start: {0} End: {1}\n{2} Width: [{3}px]", start, end, EdgeColor, EdgeWidth);
+            return string.Format("Line {0}x{1}", Size.Width, Size.Height);
         }
 
         public bool Contains(Point p)
@@ -82,7 +85,7 @@ namespace NNPG2_cv4
             Graphics g = Graphics.FromImage(bmp);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawLine(Edge, start - addend + addend2, end - addend + addend2);
-            bmp.Save(filepath);
+            Library.SaveImage(bmp, filepath);
         }
 
         public IShape DeepCopy()

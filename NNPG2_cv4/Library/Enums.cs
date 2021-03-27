@@ -3,8 +3,8 @@
     public enum BrushType
     {
         Solid,
-        Hatch,
         Gradient,
+        Hatch,
         Texture
     }
 

@@ -97,6 +97,18 @@ namespace NNPG2_cv4
             index = -1;
         }
 
+        public bool IsFocusControlPoint(Point coor)
+        {
+            foreach (Point p in Focused.ControlPoints())
+            {
+                if (Library.DistancePoint(p, coor) <= 15)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public IEnumerator<IShape> GetEnumerator()
         {
             return ((IEnumerable<IShape>)shapes).GetEnumerator();
