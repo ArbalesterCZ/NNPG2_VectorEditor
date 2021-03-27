@@ -16,9 +16,9 @@ namespace NNPG2_cv4
         public bool EdgeEnabled { get; set; }
         public Size Size { get
             {
-                float widthAddent = 0;
-                if (EdgeEnabled) widthAddent = EdgeWidth;
-                return new Size((int)(rect.Width + widthAddent), (int)(rect.Height + widthAddent));
+                float addend = 0;
+                if (EdgeEnabled) addend = EdgeWidth;
+                return new Size((int)(rect.Width + addend), (int)(rect.Height + addend));
             } }
         public Image Texture { set { texture = value; } }
         public HatchStyle Hatch { get; set; }
@@ -108,7 +108,7 @@ namespace NNPG2_cv4
             Graphics g = Graphics.FromImage(bmp);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.RenderingOrigin = rect.Location;
-            g.FillRectangle(IsolationBrush(), isolated);
+            g.FillRectangle(IsolationBrush(addend), isolated);
             if (EdgeEnabled) g.DrawRectangle(Edge, isolated);
             Library.SaveImage(bmp, filepath);
         }
@@ -136,7 +136,7 @@ namespace NNPG2_cv4
                     return null;
             }
         }
-        private Brush IsolationBrush()
+        private Brush IsolationBrush(int addend)
         {
             switch (Mode)
             {
@@ -148,7 +148,7 @@ namespace NNPG2_cv4
                     return new LinearGradientBrush(new Rectangle(0, 0, rect.Width, rect.Height), Primary, Secondary, FillAngle);
                 case BrushType.Texture:
                     TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
-                    tb.TranslateTransform(0, 0);
+                    tb.TranslateTransform(addend, addend);
                     return tb;
                 default:
                     return null;

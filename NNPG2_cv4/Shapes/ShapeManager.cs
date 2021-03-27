@@ -8,7 +8,7 @@ namespace NNPG2_cv4
     public class ShapeManager : IEnumerable<IShape>
     {       
         public int ControlPointIndex { get; set; }
-        public IShape Focused { get { return shapes[index]; } }
+        public IShape Focused => shapes[index];
         public bool IsFocused { get { return index != -1; } }
 
         private int index = -1;
