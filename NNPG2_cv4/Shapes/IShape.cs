@@ -12,12 +12,13 @@ namespace NNPG2_cv4
         Color EdgeColor { get; set; }
         float EdgeWidth { get; set; }
         Size Size { get; }
+        Image Texture { set;}
 
         IShape DeepCopy();
 
         void Render(Graphics g);
 
-        void RenderIsolation(Graphics g);
+        void Export(string filepath);
 
         bool Contains(Point p);
 

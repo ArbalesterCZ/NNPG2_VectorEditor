@@ -14,16 +14,17 @@ namespace NNPG2_cv4
         public Color EdgeColor { get { return Edge.Color; } set { Edge.Color = value; } }
         public float EdgeWidth { get { return Edge.Width; } set { Edge.Width = value; } }
         public Size Size { get { return rect.Size; } }
+        public Image Texture { set { texture = value; } }
 
-        public Rectangle rect;
+        private Rectangle rect;
 
-        private readonly Image texture = Image.FromFile(Directory.GetCurrentDirectory() + @"\..\..\rsc\btntreant-result.bmp");
+        private Image texture = Image.FromFile(Directory.GetCurrentDirectory() + @"\..\..\rsc\btntreant-result.bmp");
 
         public EllipseShape(Rectangle rect)
         {
             this.rect = rect;
             Primary = Color.White;
-            Secondary = Color.Gray;
+            Secondary = Color.Black;
             Edge = new Pen(Color.White);
             Mode = BrushType.Solid;
         }
@@ -39,33 +40,12 @@ namespace NNPG2_cv4
 
         override public string ToString()
         {
-            return string.Format("{0}\nPrimary: {1}\nSecondary: {2}\nEdge: {3}\nFill: {4}", rect, Primary, Secondary, Edge, Mode);
-        }
-
-        public Brush Brush()
-        {
-            switch (Mode)
-            {
-                case BrushType.Solid:
-                    return new SolidBrush(Primary);
-                case BrushType.Hatch:
-                    return new HatchBrush(HatchStyle.Weave, Secondary, Primary);
-                case BrushType.Gradient:
-                    return new LinearGradientBrush(rect.Location, rect.Location + new Size(50, 50), Primary, Secondary);
-                case BrushType.Texture:
-                    TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
-                    tb.TranslateTransform(rect.X, rect.Y);
-                    return tb;
-                default:
-                    return null;
-            }
+            return string.Format("{0}\nPrimary: {1}\nSecondary: {2}\n{3} Width: [{4}px]\nFill: {5}", rect, Primary, Secondary, EdgeColor, EdgeWidth, Mode);
         }
 
         public bool Contains(Point p)
         {
-            GraphicsPath path = new GraphicsPath();
-            path.AddEllipse(rect);
-            return path.IsVisible(p);
+            return rect.Contains(p);
         }
 
         public Point[] ControlPoints()
@@ -107,16 +87,61 @@ namespace NNPG2_cv4
             g.DrawEllipse(Edge, rect);
         }
 
-        public void RenderIsolation(Graphics g)
+        public void Export(string filepath)
         {
-            Rectangle isolated = new Rectangle(0, 0, rect.Width, rect.Height);
-            g.FillEllipse(Brush(), isolated);
+            int addend = (int)(EdgeWidth / 2);
+
+            Bitmap bmp = new Bitmap((int)(Size.Width + EdgeWidth), (int)(Size.Height + EdgeWidth));
+            Rectangle isolated = new Rectangle(addend, addend, Size.Width, Size.Height);
+
+            Graphics g = Graphics.FromImage(bmp);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.FillEllipse(IsolationBrush(), isolated);
             g.DrawEllipse(Edge, isolated);
+            bmp.Save(filepath);
+
         }
 
         public IShape DeepCopy()
         {
             return new EllipseShape(rect, Primary, Secondary, EdgeColor, Mode);
+        }
+
+        private Brush Brush()
+        {
+            switch (Mode)
+            {
+                case BrushType.Solid:
+                    return new SolidBrush(Primary);
+                case BrushType.Hatch:
+                    return new HatchBrush(HatchStyle.Weave, Secondary, Primary);
+                case BrushType.Gradient:
+                    return new LinearGradientBrush(rect.Location, rect.Location + new Size(50, 50), Primary, Secondary);
+                case BrushType.Texture:
+                    TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
+                    tb.TranslateTransform(rect.X, rect.Y);
+                    return tb;
+                default:
+                    return null;
+            }
+        }
+        private Brush IsolationBrush()
+        {
+            switch (Mode)
+            {
+                case BrushType.Solid:
+                    return new SolidBrush(Primary);
+                case BrushType.Hatch:
+                    return new HatchBrush(HatchStyle.Weave, Secondary, Primary);
+                case BrushType.Gradient:
+                    return new LinearGradientBrush(new Point(), new Point(50, 50), Primary, Secondary);
+                case BrushType.Texture:
+                    TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
+                    tb.TranslateTransform(0, 0);
+                    return tb;
+                default:
+                    return null;
+            }
         }
     }
 }

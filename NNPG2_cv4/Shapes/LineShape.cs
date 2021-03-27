@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace NNPG2_cv4
 {
@@ -12,7 +13,8 @@ namespace NNPG2_cv4
         public Pen Edge { get;}
         public Color EdgeColor { get { return Edge.Color; } set { Edge.Color = value; } }
         public float EdgeWidth { get { return Edge.Width; } set { Edge.Width = value; } }
-        public Size Size { get { return new Size(Math.Abs(start.X - end.X), Math.Abs(start.X - end.X)); } }
+        public Size Size { get { return new Size(Math.Abs(start.X - end.X), Math.Abs(start.Y - end.Y)); } }
+        public Image Texture { set { _ = value; } }
 
         private Point start;
         private Point end;
@@ -24,12 +26,10 @@ namespace NNPG2_cv4
             Edge = new Pen(Color.White);
         }
 
-        public LineShape(Point start, Point end, Color primary, Color secondary, Color edge, float width)
+        public LineShape(Point start, Point end, Color edge, float width)
         {
             this.start = start;
             this.end = end;
-            Primary = primary;
-            Secondary = secondary;
             Edge = new Pen(edge, width);
         }
 
@@ -72,15 +72,22 @@ namespace NNPG2_cv4
             g.DrawLine(Edge, start, end);
         }
 
-        public void RenderIsolation(Graphics g)
+        public void Export(string filepath)
         {
             Size addend = new Size(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y));
-            g.DrawLine(Edge, start - addend, end - addend);
+            Size addend2 = new Size((int)(EdgeWidth / 2), (int)(EdgeWidth / 2));
+
+            Bitmap bmp = new Bitmap((int)(Size.Width + EdgeWidth), (int)(Size.Height + EdgeWidth));
+
+            Graphics g = Graphics.FromImage(bmp);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.DrawLine(Edge, start - addend + addend2, end - addend + addend2);
+            bmp.Save(filepath);
         }
 
         public IShape DeepCopy()
         {
-            return new LineShape(start, end, Primary, Secondary, EdgeColor, EdgeWidth);
+            return new LineShape(start, end, EdgeColor, EdgeWidth);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using static System.Math;
 
@@ -37,20 +38,16 @@ namespace NNPG2_cv4
             }
             return Sqrt(dx * dx + dy * dy);
         }
-        public static bool SaveDialog(out string filePath)
+        public static bool FileDialog(FileDialog fileDialog, out string filePath)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog
-            {
-                Filter = "bmp files (*.bmp)|*.bmp|All files (*.*)|*.*",
-                RestoreDirectory = true
-            };
+            filePath = "";
+            fileDialog.Filter = "Image Files(*.BMP;*.JPG;*.GIF)|*.BMP;*.JPG;*.GIF|All files (*.*)|*.*";
 
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                filePath = saveFileDialog.FileName;
+                filePath = fileDialog.FileName;
                 return true;
             }
-            filePath = "";
             return false;
         }
     }

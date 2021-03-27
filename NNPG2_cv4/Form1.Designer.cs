@@ -47,13 +47,14 @@ namespace NNPG2_cv4
             this.itemMoveBot = new System.Windows.Forms.ToolStripMenuItem();
             this.itemDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.itemAddShapeObject = new System.Windows.Forms.ToolStripMenuItem();
             this.itemAddRectangleObject = new System.Windows.Forms.ToolStripMenuItem();
             this.itemAddEllipseObject = new System.Windows.Forms.ToolStripMenuItem();
             this.itemAddLineObject = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.itemBackground = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.ContextCanvas = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.itemAddShapeCanvas = new System.Windows.Forms.ToolStripMenuItem();
             this.itemAddRectangle = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,8 +62,12 @@ namespace NNPG2_cv4
             this.itemAddLine = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.itemBackgroundC = new System.Windows.Forms.ToolStripMenuItem();
+            this.itemBackgroundColor = new System.Windows.Forms.ToolStripMenuItem();
+            this.itemBackgroundImage = new System.Windows.Forms.ToolStripMenuItem();
             this.itemSave = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.itemChangeTexture = new System.Windows.Forms.ToolStripMenuItem();
             this.ContextObject.SuspendLayout();
             this.ContextCanvas.SuspendLayout();
             this.SuspendLayout();
@@ -83,37 +88,39 @@ namespace NNPG2_cv4
             this.itemBackground,
             this.toolStripMenuItem2});
             this.ContextObject.Name = "ContextObject";
-            this.ContextObject.Size = new System.Drawing.Size(167, 232);
+            this.ContextObject.Size = new System.Drawing.Size(144, 214);
             // 
             // itemInfo
             // 
             this.itemInfo.Name = "itemInfo";
-            this.itemInfo.Size = new System.Drawing.Size(166, 24);
+            this.itemInfo.Size = new System.Drawing.Size(180, 22);
             this.itemInfo.Text = "Information";
             this.itemInfo.Click += new System.EventHandler(this.ItemInfo_Click);
             // 
             // itemFill
             // 
             this.itemFill.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.comboFillType,
             this.itemPrimaryColor,
             this.itemSecondaryColor,
-            this.comboFillType});
+            this.itemChangeTexture});
             this.itemFill.Name = "itemFill";
-            this.itemFill.Size = new System.Drawing.Size(166, 24);
+            this.itemFill.Size = new System.Drawing.Size(143, 22);
             this.itemFill.Text = "Fill";
             // 
             // itemPrimaryColor
             // 
             this.itemPrimaryColor.Name = "itemPrimaryColor";
-            this.itemPrimaryColor.Size = new System.Drawing.Size(195, 26);
+            this.itemPrimaryColor.Size = new System.Drawing.Size(181, 22);
             this.itemPrimaryColor.Text = "Primary";
             this.itemPrimaryColor.Click += new System.EventHandler(this.ItemColorPrimary_Click);
             // 
             // itemSecondaryColor
             // 
             this.itemSecondaryColor.Name = "itemSecondaryColor";
-            this.itemSecondaryColor.Size = new System.Drawing.Size(195, 26);
+            this.itemSecondaryColor.Size = new System.Drawing.Size(181, 22);
             this.itemSecondaryColor.Text = "Secondary";
+            this.itemSecondaryColor.Visible = false;
             this.itemSecondaryColor.Click += new System.EventHandler(this.ItemColorSecondary_Click);
             // 
             // comboFillType
@@ -121,7 +128,7 @@ namespace NNPG2_cv4
             this.comboFillType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboFillType.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
             this.comboFillType.Name = "comboFillType";
-            this.comboFillType.Size = new System.Drawing.Size(121, 28);
+            this.comboFillType.Size = new System.Drawing.Size(121, 23);
             this.comboFillType.Tag = "Fill Style";
             this.comboFillType.ToolTipText = "Fill Style";
             this.comboFillType.SelectedIndexChanged += new System.EventHandler(this.ComboFillType_SelectedIndexChanged);
@@ -132,13 +139,13 @@ namespace NNPG2_cv4
             this.itemEdgeColor,
             this.textBoxEdgeWidth});
             this.itemEdge.Name = "itemEdge";
-            this.itemEdge.Size = new System.Drawing.Size(166, 24);
+            this.itemEdge.Size = new System.Drawing.Size(180, 22);
             this.itemEdge.Text = "Edge";
             // 
             // itemEdgeColor
             // 
             this.itemEdgeColor.Name = "itemEdgeColor";
-            this.itemEdgeColor.Size = new System.Drawing.Size(174, 26);
+            this.itemEdgeColor.Size = new System.Drawing.Size(160, 22);
             this.itemEdgeColor.Text = "Color";
             this.itemEdgeColor.Click += new System.EventHandler(this.ItemColorEdge_Click);
             // 
@@ -147,7 +154,7 @@ namespace NNPG2_cv4
             this.textBoxEdgeWidth.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.textBoxEdgeWidth.MaxLength = 4;
             this.textBoxEdgeWidth.Name = "textBoxEdgeWidth";
-            this.textBoxEdgeWidth.Size = new System.Drawing.Size(100, 27);
+            this.textBoxEdgeWidth.Size = new System.Drawing.Size(100, 23);
             this.textBoxEdgeWidth.Tag = "Width";
             this.textBoxEdgeWidth.ToolTipText = "Width";
             this.textBoxEdgeWidth.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxEdgeWidth_KeyPress);
@@ -162,53 +169,60 @@ namespace NNPG2_cv4
             this.itemMoveTop,
             this.itemMoveBot});
             this.ItemMove.Name = "ItemMove";
-            this.ItemMove.Size = new System.Drawing.Size(166, 24);
+            this.ItemMove.Size = new System.Drawing.Size(180, 22);
             this.ItemMove.Text = "Move";
             // 
             // itemMoveUp
             // 
             this.itemMoveUp.Name = "itemMoveUp";
-            this.itemMoveUp.Size = new System.Drawing.Size(131, 26);
+            this.itemMoveUp.Size = new System.Drawing.Size(105, 22);
             this.itemMoveUp.Text = "Up";
             this.itemMoveUp.Click += new System.EventHandler(this.ItemMoveUp_Click);
             // 
             // itemMoveDown
             // 
             this.itemMoveDown.Name = "itemMoveDown";
-            this.itemMoveDown.Size = new System.Drawing.Size(131, 26);
+            this.itemMoveDown.Size = new System.Drawing.Size(105, 22);
             this.itemMoveDown.Text = "Down";
             this.itemMoveDown.Click += new System.EventHandler(this.ItemMoveDown_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(128, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(102, 6);
             // 
             // itemMoveTop
             // 
             this.itemMoveTop.Name = "itemMoveTop";
-            this.itemMoveTop.Size = new System.Drawing.Size(131, 26);
+            this.itemMoveTop.Size = new System.Drawing.Size(105, 22);
             this.itemMoveTop.Text = "Top";
             this.itemMoveTop.Click += new System.EventHandler(this.ItemMoveTop_Click);
             // 
             // itemMoveBot
             // 
             this.itemMoveBot.Name = "itemMoveBot";
-            this.itemMoveBot.Size = new System.Drawing.Size(131, 26);
+            this.itemMoveBot.Size = new System.Drawing.Size(105, 22);
             this.itemMoveBot.Text = "Bot";
             this.itemMoveBot.Click += new System.EventHandler(this.ItemMoveBot_Click);
             // 
             // itemDelete
             // 
             this.itemDelete.Name = "itemDelete";
-            this.itemDelete.Size = new System.Drawing.Size(166, 24);
+            this.itemDelete.Size = new System.Drawing.Size(180, 22);
             this.itemDelete.Text = "Delete";
             this.itemDelete.Click += new System.EventHandler(this.ItemDelete_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(163, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem1.Text = "Export Shape";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.ItemExportObject_Click);
             // 
             // itemAddShapeObject
             // 
@@ -217,48 +231,50 @@ namespace NNPG2_cv4
             this.itemAddEllipseObject,
             this.itemAddLineObject});
             this.itemAddShapeObject.Name = "itemAddShapeObject";
-            this.itemAddShapeObject.Size = new System.Drawing.Size(166, 24);
+            this.itemAddShapeObject.Size = new System.Drawing.Size(180, 22);
             this.itemAddShapeObject.Text = "Add Shape";
             // 
             // itemAddRectangleObject
             // 
             this.itemAddRectangleObject.Name = "itemAddRectangleObject";
-            this.itemAddRectangleObject.Size = new System.Drawing.Size(224, 26);
+            this.itemAddRectangleObject.Size = new System.Drawing.Size(180, 22);
             this.itemAddRectangleObject.Text = "Rectangle";
             this.itemAddRectangleObject.Click += new System.EventHandler(this.ItemAddRectangle_Click);
             // 
             // itemAddEllipseObject
             // 
             this.itemAddEllipseObject.Name = "itemAddEllipseObject";
-            this.itemAddEllipseObject.Size = new System.Drawing.Size(224, 26);
+            this.itemAddEllipseObject.Size = new System.Drawing.Size(180, 22);
             this.itemAddEllipseObject.Text = "Ellipse";
             this.itemAddEllipseObject.Click += new System.EventHandler(this.ItemAddEllipse_Click);
             // 
             // itemAddLineObject
             // 
             this.itemAddLineObject.Name = "itemAddLineObject";
-            this.itemAddLineObject.Size = new System.Drawing.Size(224, 26);
+            this.itemAddLineObject.Size = new System.Drawing.Size(180, 22);
             this.itemAddLineObject.Text = "Line";
             this.itemAddLineObject.Click += new System.EventHandler(this.ItemAddLine_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(163, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(177, 6);
             // 
             // itemBackground
             // 
+            this.itemBackground.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem3,
+            this.toolStripMenuItem4});
             this.itemBackground.Name = "itemBackground";
-            this.itemBackground.Size = new System.Drawing.Size(166, 24);
+            this.itemBackground.Size = new System.Drawing.Size(180, 22);
             this.itemBackground.Text = "Background";
-            this.itemBackground.Click += new System.EventHandler(this.ItemBackground_Click);
             // 
-            // toolStripMenuItem1
+            // toolStripMenuItem2
             // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(166, 24);
-            this.toolStripMenuItem1.Text = "Export Shape";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.ItemExportObject_Click);
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem2.Text = "Export";
+            this.toolStripMenuItem2.Click += new System.EventHandler(this.ItemExportCanvas_Click);
             // 
             // ContextCanvas
             // 
@@ -269,7 +285,7 @@ namespace NNPG2_cv4
             this.itemBackgroundC,
             this.itemSave});
             this.ContextCanvas.Name = "ContextObject";
-            this.ContextCanvas.Size = new System.Drawing.Size(158, 82);
+            this.ContextCanvas.Size = new System.Drawing.Size(139, 76);
             // 
             // itemAddShapeCanvas
             // 
@@ -278,62 +294,93 @@ namespace NNPG2_cv4
             this.itemAddEllipse,
             this.itemAddLine});
             this.itemAddShapeCanvas.Name = "itemAddShapeCanvas";
-            this.itemAddShapeCanvas.Size = new System.Drawing.Size(157, 24);
+            this.itemAddShapeCanvas.Size = new System.Drawing.Size(138, 22);
             this.itemAddShapeCanvas.Text = "Add Shape";
             // 
             // itemAddRectangle
             // 
             this.itemAddRectangle.Name = "itemAddRectangle";
-            this.itemAddRectangle.Size = new System.Drawing.Size(158, 26);
+            this.itemAddRectangle.Size = new System.Drawing.Size(126, 22);
             this.itemAddRectangle.Text = "Rectangle";
             this.itemAddRectangle.Click += new System.EventHandler(this.ItemAddRectangle_Click);
             // 
             // itemAddEllipse
             // 
             this.itemAddEllipse.Name = "itemAddEllipse";
-            this.itemAddEllipse.Size = new System.Drawing.Size(158, 26);
+            this.itemAddEllipse.Size = new System.Drawing.Size(126, 22);
             this.itemAddEllipse.Text = "Ellipse";
             this.itemAddEllipse.Click += new System.EventHandler(this.ItemAddEllipse_Click);
             // 
             // itemAddLine
             // 
             this.itemAddLine.Name = "itemAddLine";
-            this.itemAddLine.Size = new System.Drawing.Size(158, 26);
+            this.itemAddLine.Size = new System.Drawing.Size(126, 22);
             this.itemAddLine.Text = "Line";
             this.itemAddLine.Click += new System.EventHandler(this.ItemAddLine_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(154, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(135, 6);
             // 
             // itemBackgroundC
             // 
+            this.itemBackgroundC.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.itemBackgroundColor,
+            this.itemBackgroundImage});
             this.itemBackgroundC.Name = "itemBackgroundC";
-            this.itemBackgroundC.Size = new System.Drawing.Size(157, 24);
+            this.itemBackgroundC.Size = new System.Drawing.Size(138, 22);
             this.itemBackgroundC.Text = "Background";
-            this.itemBackgroundC.Click += new System.EventHandler(this.ItemBackground_Click);
+            // 
+            // itemBackgroundColor
+            // 
+            this.itemBackgroundColor.Name = "itemBackgroundColor";
+            this.itemBackgroundColor.Size = new System.Drawing.Size(180, 22);
+            this.itemBackgroundColor.Text = "Color";
+            this.itemBackgroundColor.Click += new System.EventHandler(this.ItemBackgroundColor_Click);
+            // 
+            // itemBackgroundImage
+            // 
+            this.itemBackgroundImage.Name = "itemBackgroundImage";
+            this.itemBackgroundImage.Size = new System.Drawing.Size(180, 22);
+            this.itemBackgroundImage.Text = "Image";
+            this.itemBackgroundImage.Click += new System.EventHandler(this.ItemBackgroundImage_Click);
             // 
             // itemSave
             // 
             this.itemSave.Name = "itemSave";
-            this.itemSave.Size = new System.Drawing.Size(157, 24);
+            this.itemSave.Size = new System.Drawing.Size(138, 22);
             this.itemSave.Text = "Export";
             this.itemSave.Click += new System.EventHandler(this.ItemExportCanvas_Click);
             // 
-            // toolStripMenuItem2
+            // toolStripMenuItem3
             // 
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(166, 24);
-            this.toolStripMenuItem2.Text = "Export";
-            this.toolStripMenuItem2.Click += new System.EventHandler(this.ItemExportCanvas_Click);
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem3.Text = "Color";
+            this.toolStripMenuItem3.Click += new System.EventHandler(this.ItemBackgroundColor_Click);
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem4.Text = "Image";
+            this.toolStripMenuItem4.Click += new System.EventHandler(this.ItemBackgroundImage_Click);
+            // 
+            // itemChangeTexture
+            // 
+            this.itemChangeTexture.Name = "itemChangeTexture";
+            this.itemChangeTexture.Size = new System.Drawing.Size(181, 22);
+            this.itemChangeTexture.Text = "Change Texture";
+            this.itemChangeTexture.Visible = false;
+            this.itemChangeTexture.Click += new System.EventHandler(this.itemChangeTexture_Click);
             // 
             // Canvas
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1901, 1033);
-            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.ClientSize = new System.Drawing.Size(1426, 839);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Canvas";
             this.Text = "Vector Editor";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Canvas_Paint);
@@ -383,6 +430,11 @@ namespace NNPG2_cv4
         private System.Windows.Forms.ToolStripMenuItem itemSave;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem itemBackgroundColor;
+        private System.Windows.Forms.ToolStripMenuItem itemBackgroundImage;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripMenuItem itemChangeTexture;
     }
 }
 

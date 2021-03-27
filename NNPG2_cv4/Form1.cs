@@ -12,13 +12,16 @@ namespace NNPG2_cv4
         private readonly ShapeManager shapeManager = new ShapeManager();
         private readonly ColorDialog colorObjectDialog = new ColorDialog();
 
+        private readonly Background background = new Background(Color.Black);
+
         private Point start;
         private Point end;
 
-        private Color backgroundColor = Color.Black;
-
         private Brush virtualBrush;
         private Pen virtualPen;
+
+        private SaveFileDialog saveDialog = new SaveFileDialog();
+        private OpenFileDialog openDialog = new OpenFileDialog();
 
         private ShapeType addendShape;
         public Canvas()
@@ -124,16 +127,6 @@ namespace NNPG2_cv4
             Refresh();
         }
 
-        private void ItemBackground_Click(object sender, EventArgs e)
-        {
-            colorObjectDialog.Color = backgroundColor;
-            if (colorObjectDialog.ShowDialog() == DialogResult.OK)
-            {
-                backgroundColor = colorObjectDialog.Color;
-                Refresh();
-            }
-        }
-
         private void ItemInfo_Click(object sender, EventArgs e)
         {
             MessageBox.Show(this, shapeManager.Focused.ToString(), "Information");
@@ -178,6 +171,11 @@ namespace NNPG2_cv4
         {
             BrushType brushType = (BrushType) comboFillType.SelectedItem;
             if (brushType == shapeManager.Focused.Mode) return;
+
+            if (brushType < (BrushType)1) { itemChangeTexture.Visible = false; itemSecondaryColor.Visible = false; }
+            else if (brushType < (BrushType)3) { itemChangeTexture.Visible = false; itemSecondaryColor.Visible = true; }
+            else { itemChangeTexture.Visible = true; itemSecondaryColor.Visible = true; }
+
             shapeManager.Focused.Mode = brushType;
             Refresh();
         }
@@ -202,13 +200,13 @@ namespace NNPG2_cv4
             MouseDown += new MouseEventHandler(Canvas_MouseDownVirtual);
             virtualBrush = new SolidBrush(Color.FromArgb(
                 128,
-                255 - backgroundColor.R,
-                255 - backgroundColor.R,
-                255 - backgroundColor.G));
+                255 - background.Color.R,
+                255 - background.Color.R,
+                255 - background.Color.G));
             virtualPen = new Pen(Color.FromArgb(
-                255 - backgroundColor.R,
-                255 - backgroundColor.R,
-                255 - backgroundColor.G), 2.5f)
+                255 - background.Color.R,
+                255 - background.Color.R,
+                255 - background.Color.G), 2.5f)
             {
                 DashCap = System.Drawing.Drawing2D.DashCap.Flat,
                 DashPattern = new float[] { 2.0f, 2.0f }
@@ -261,23 +259,14 @@ namespace NNPG2_cv4
             Rectangle virtualRect = Rectangle.FromLTRB(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y), Math.Max(start.X, end.X), Math.Max(start.Y, end.Y));
             if (addendShape == ShapeType.Rectangle)
             {
-                shapeManager.Add(new RectangleShape(virtualRect,
-                    Color.White,
-                    Color.Black,
-                    Color.Black,
-                    BrushType.Gradient));
+                shapeManager.Add(new RectangleShape(virtualRect));
             } else if(addendShape == ShapeType.Ellipse)
-                {
-                shapeManager.Add(new EllipseShape(virtualRect,
-                    Color.White,
-                    Color.Black,
-                    Color.Black,
-                    BrushType.Gradient));
-                } else if (addendShape == ShapeType.Line)
+            {
+                shapeManager.Add(new EllipseShape(virtualRect));
+            } else if (addendShape == ShapeType.Line)
             {
                 shapeManager.Add(new LineShape(start, end));
             }
-
             Refresh();
         }
 
@@ -373,7 +362,7 @@ namespace NNPG2_cv4
 
         private void ItemExportCanvas_Click(object sender, EventArgs e)
         {
-            if (Library.SaveDialog(out string filepath))
+            if (Library.FileDialog(saveDialog, out string filepath))
             {
                 Bitmap bmp = new Bitmap(Width, Height);
                 Graphics g = Graphics.FromImage(bmp);
@@ -385,20 +374,15 @@ namespace NNPG2_cv4
 
         private void ItemExportObject_Click(object sender, EventArgs e)
         {
-            if(Library.SaveDialog(out string filepath))
+            if(Library.FileDialog(saveDialog, out string filepath))
             {
-                IShape shape = shapeManager.Focused;
-                Bitmap bmp = new Bitmap(shape.Size.Width, shape.Size.Height);
-                Graphics g = Graphics.FromImage(bmp);
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                shape.RenderIsolation(g);
-                bmp.Save(filepath);
+                shapeManager.Focused.Export(filepath);
             }
         }
         private void Render(Graphics g)
         {
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            g.FillRectangle(new SolidBrush(backgroundColor), 0, 0, Width, Height);
+            background.Render(g, Width, Height);
             foreach (IShape shape in shapeManager) shape.Render(g);
             if (!shapeManager.IsFocused) return;
             foreach (Point controlPoint in shapeManager.Focused.ControlPoints())
@@ -407,5 +391,33 @@ namespace NNPG2_cv4
                 g.DrawEllipse(Pens.Black, new Rectangle(controlPoint - controlPointShift, controlPointSize));
             }
         }
-    }
+
+        private void ItemBackgroundColor_Click(object sender, EventArgs e)
+        {
+            colorObjectDialog.Color = background.Color;
+            if (colorObjectDialog.ShowDialog() == DialogResult.OK)
+            {
+                background.Color = colorObjectDialog.Color;
+                Refresh();
+            }
+        }
+
+        private void ItemBackgroundImage_Click(object sender, EventArgs e)
+        {
+            if (Library.FileDialog(openDialog, out string filepath))
+            {
+                background.Image = Image.FromFile(filepath);
+                Refresh();
+            }
+        }
+
+        private void itemChangeTexture_Click(object sender, EventArgs e)
+        {
+            if (Library.FileDialog(openDialog, out string filepath))
+            {
+                shapeManager.Focused.Texture = Image.FromFile(filepath);
+                Refresh();
+            }
+        }
+    }  
 }
