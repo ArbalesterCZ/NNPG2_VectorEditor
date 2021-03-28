@@ -17,6 +17,7 @@ namespace NNPG2_cv4
         public void Clear()
         {
             shapes.Clear();
+            index = - 1;
         }
 
         public void Add(IShape shape)
