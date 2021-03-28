@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace NNPG2_cv4
@@ -29,7 +30,7 @@ namespace NNPG2_cv4
         public RectangleShape(Rectangle rect)
         {
             this.rect = rect;
-            Primary = Color.White;
+            Primary = Color.LightGray;
             Secondary = Color.Black;
             Edge = new Pen(Color.Red);
             Mode = BrushType.Solid;
@@ -97,6 +98,25 @@ namespace NNPG2_cv4
             if(EdgeEnabled) g.DrawRectangle(Edge, rect);
         }
 
+        public void Print(Graphics g, Rectangle printArea)
+        {
+            float multiplyFactor = Math.Min((float)printArea.Width / rect.Width, (float)printArea.Height / rect.Height);
+
+            Rectangle isolatedRect = new Rectangle(printArea.X, printArea.Y, (int)(rect.Width * multiplyFactor), (int)(rect.Height * multiplyFactor));
+            g.RenderingOrigin = isolatedRect.Location;
+            Brush brush = Brush();
+            if (brush is TextureBrush)
+            {
+                TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
+                tb.TranslateTransform(isolatedRect.X, isolatedRect.Y);
+                tb.ScaleTransform(multiplyFactor, multiplyFactor);
+                tb.RotateTransform(FillAngle);
+                brush = tb;          
+            }
+            g.FillRectangle(brush, isolatedRect);
+            if (EdgeEnabled) g.DrawRectangle(Edge, isolatedRect);
+        }
+
         public void Export(string filepath)
         {
             int addend = 0;
@@ -106,8 +126,8 @@ namespace NNPG2_cv4
             Rectangle isolated = new Rectangle(addend, addend, rect.Width, rect.Height);
 
             Graphics g = Graphics.FromImage(bmp);
-            g.SmoothingMode = SmoothingMode.AntiAlias;
             g.RenderingOrigin = rect.Location;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             g.FillRectangle(IsolationBrush(addend), isolated);
             if (EdgeEnabled) g.DrawRectangle(Edge, isolated);
             Library.SaveImage(bmp, filepath);
@@ -131,6 +151,7 @@ namespace NNPG2_cv4
                 case BrushType.Texture:
                     TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
                     tb.TranslateTransform(rect.X, rect.Y);
+                    tb.RotateTransform(FillAngle);
                     return tb;
                 default:
                     return null;
@@ -149,6 +170,7 @@ namespace NNPG2_cv4
                 case BrushType.Texture:
                     TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
                     tb.TranslateTransform(addend, addend);
+                    tb.RotateTransform(FillAngle);
                     return tb;
                 default:
                     return null;

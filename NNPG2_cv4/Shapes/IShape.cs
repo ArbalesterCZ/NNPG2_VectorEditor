@@ -5,7 +5,6 @@ namespace NNPG2_cv4
 {
     public interface IShape
     {
-        Brush Fill { get; set; }
         BrushType Mode { get; set; }
         float FillAngle { get; set; }
         Color Primary { get; set; }
@@ -21,6 +20,8 @@ namespace NNPG2_cv4
         IShape DeepCopy();
 
         void Render(Graphics g);
+
+        void Print(Graphics g, Rectangle printArea);
 
         void Export(string filepath);
 

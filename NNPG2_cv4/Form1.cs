@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Printing;
 using System.Windows.Forms;
 
 namespace NNPG2_cv4
@@ -21,6 +22,9 @@ namespace NNPG2_cv4
         private readonly string SAVE_FILTER = "JPEG (*.JPG;*.JPEG)|*.jpg;*.JPEG|GIF (*.GIF)|*.gif|PNG (*.PNG)|*.png|BMP (*.BMP)|*.bmp|TIFF (*.TIFF)|*.tiff";
         private readonly string LOAD_FILTER = "Image Files(*.JPG;*.GIF;*.PNG;*.BMP;*.TIFF)|*.JPG;*.JPEG;*.GIF;*.PNG;*.BMP;*.TIFF|All files (*.*)|*.*";
 
+        private PrintDocument printDocument = new PrintDocument();
+        private PrintDocument printShape = new PrintDocument();
+
         private Point start;
         private Point end;
 
@@ -32,10 +36,43 @@ namespace NNPG2_cv4
         {
             InitializeComponent();
             HatchInit();
+            PrintInit();
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
 
             BrushType[] types = (BrushType[])Enum.GetValues(typeof(BrushType));         
             foreach (BrushType type in types) comboFillType.Items.Add(type);
+        }
+
+        private void PrintInit()
+        {
+            printDocument.PrintPage += new PrintPageEventHandler(PrintDocument_PrintPage);
+            printShape.PrintPage += new PrintPageEventHandler(PrintDocument_PrintShape);
+
+            printDocument.DocumentName = "NNPG2 Print";
+
+            printDialogShape.Document = printShape;
+            printDialog.Document = printDocument;
+        }
+        private void ItemPrintShape_Click(object sender, EventArgs e)
+        {
+            try { if (printDialogShape.ShowDialog() == DialogResult.OK) printShape.Print(); } catch (Exception ex) { MessageBox.Show(ex.ToString()); }
+        }
+
+        private void PrintDocument_PrintShape(object sender, PrintPageEventArgs e)
+        {
+            SHAPE_MANAGER.Focused.Print(e.Graphics, e.MarginBounds);
+        }
+
+        private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            BACKGROUND.Render(g, e.MarginBounds.X + e.MarginBounds.X +  e.MarginBounds.Width, e.MarginBounds.Y + e.MarginBounds.Y + e.MarginBounds.Height);
+            foreach (IShape shape in SHAPE_MANAGER) shape.Render(g);
+        }
+        private void ItemPrintDialog_Click(object sender, EventArgs e)
+        {
+            try { if (printDialog.ShowDialog() == DialogResult.OK) printDocument.Print(); } catch (Exception ex) { MessageBox.Show(ex.ToString()); }
         }
 
         private void Canvas_Paint(object sender, PaintEventArgs e)
@@ -359,9 +396,7 @@ namespace NNPG2_cv4
             if (Library.FileDialog(SAVE_DIALOG, SAVE_FILTER, out string filepath))
             {
                 Bitmap bmp = new Bitmap(ClientSize.Width, ClientSize.Height);
-                Graphics g = Graphics.FromImage(bmp);
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                Render(g);
+                Render(Graphics.FromImage(bmp));
                 Library.SaveImage(bmp, filepath);
             }
         }
@@ -461,6 +496,7 @@ namespace NNPG2_cv4
         {
             itemSeparator.Visible = isShapeFocused;
             itemExportObject.Visible = isShapeFocused;
+            itemPrintObject.Visible = isShapeFocused;
             itemDelete.Visible = isShapeFocused;
             ItemMove.Visible = isShapeFocused;
             itemEdge.Visible = isShapeFocused;
@@ -478,6 +514,13 @@ namespace NNPG2_cv4
                         itemAngle.Visible = false;
                         itemHatchStyle.Visible = false;
                         break;
+                    case BrushType.Gradient:
+                        itemPrimaryColor.Visible = true;
+                        itemSecondaryColor.Visible = true;
+                        itemChangeTexture.Visible = false;
+                        itemAngle.Visible = true;
+                        itemHatchStyle.Visible = false;
+                        break;
                     case BrushType.Hatch:
                         itemPrimaryColor.Visible = true;
                         itemSecondaryColor.Visible = true;
@@ -485,23 +528,16 @@ namespace NNPG2_cv4
                         itemAngle.Visible = false;
                         itemHatchStyle.Visible = true;
                         break;
-                    case BrushType.Gradient:
-                        itemPrimaryColor.Visible = true;
-                        itemSecondaryColor.Visible = true;
-                        itemChangeTexture.Visible = false;
-                        itemAngle.Visible = true;
-                        itemAngle.Text = SHAPE_MANAGER.Focused.FillAngle.ToString();
-                        itemHatchStyle.Visible = false;
-                        break;
                     case BrushType.Texture:
                         itemPrimaryColor.Visible = false;
                         itemSecondaryColor.Visible = false;
                         itemChangeTexture.Visible = true;
-                        itemAngle.Visible = false;
+                        itemAngle.Visible = true;
                         itemHatchStyle.Visible = false;
                         break;
                 }
                 comboFillType.SelectedItem = SHAPE_MANAGER.Focused.Mode;
+                itemAngle.Text = SHAPE_MANAGER.Focused.FillAngle.ToString();
                 textBoxEdgeWidth.Text = SHAPE_MANAGER.Focused.EdgeWidth.ToString();
                 itemEdgeEnable.Checked = SHAPE_MANAGER.Focused.EdgeEnabled;
                 bool isLine = SHAPE_MANAGER.Focused is LineShape;

@@ -6,7 +6,6 @@ namespace NNPG2_cv4
 {
     public class LineShape : IShape
     {
-        public Brush Fill { get; set; }
         public BrushType Mode { get; set; }
         public float FillAngle { get; set; }
         public Color Primary { get; set; }
@@ -75,6 +74,19 @@ namespace NNPG2_cv4
             g.DrawLine(Edge, start, end);
         }
 
+        public void Print(Graphics g, Rectangle printArea)
+        {
+            float multiplyFactor = Math.Min((float)printArea.Width / Size.Width, (float)printArea.Height / Size.Height);
+            Rectangle isolatedRect = new Rectangle(printArea.X, printArea.Y, (int)(Size.Width * multiplyFactor), (int)(Size.Height * multiplyFactor));
+
+            Point rightPoint;
+            Point leftPoint;
+            if (start.X > end.X) { rightPoint = start; leftPoint = end; } else { rightPoint = end; leftPoint = start; }
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            if (leftPoint.Y < rightPoint.Y) g.DrawLine(Edge, isolatedRect.Location, new Point(isolatedRect.Right, isolatedRect.Bottom));
+            else g.DrawLine(Edge, new Point(isolatedRect.Left, isolatedRect.Bottom), new Point(isolatedRect.Right, isolatedRect.Top));
+        }
         public void Export(string filepath)
         {
             Size addend = new Size(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y));

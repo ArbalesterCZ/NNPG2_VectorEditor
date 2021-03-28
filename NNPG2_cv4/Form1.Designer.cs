@@ -38,6 +38,7 @@ namespace NNPG2_cv4
             this.itemPrimaryColor = new System.Windows.Forms.ToolStripMenuItem();
             this.itemSecondaryColor = new System.Windows.Forms.ToolStripMenuItem();
             this.itemChangeTexture = new System.Windows.Forms.ToolStripMenuItem();
+            this.itemHatchStyle = new System.Windows.Forms.ToolStripMenuItem();
             this.itemAngle = new System.Windows.Forms.ToolStripTextBox();
             this.itemEdge = new System.Windows.Forms.ToolStripMenuItem();
             this.itemEdgeColor = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,13 +56,16 @@ namespace NNPG2_cv4
             this.itemAddRectangleObject = new System.Windows.Forms.ToolStripMenuItem();
             this.itemAddEllipseObject = new System.Windows.Forms.ToolStripMenuItem();
             this.itemAddLineObject = new System.Windows.Forms.ToolStripMenuItem();
+            this.itemPrintObject = new System.Windows.Forms.ToolStripMenuItem();
             this.itemExportObject = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.itemPrint = new System.Windows.Forms.ToolStripMenuItem();
             this.itemBackground = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.itemHatchStyle = new System.Windows.Forms.ToolStripMenuItem();
+            this.printDialog = new System.Windows.Forms.PrintDialog();
+            this.printDialogShape = new System.Windows.Forms.PrintDialog();
             this.ContextObject.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -76,12 +80,14 @@ namespace NNPG2_cv4
             this.itemDelete,
             this.itemSeparator,
             this.itemAddShapeObject,
+            this.itemPrintObject,
             this.itemExportObject,
             this.toolStripSeparator4,
-            this.itemBackground,
-            this.toolStripMenuItem2});
+            this.itemPrint,
+            this.toolStripMenuItem2,
+            this.itemBackground});
             this.ContextObject.Name = "ContextObject";
-            this.ContextObject.Size = new System.Drawing.Size(144, 214);
+            this.ContextObject.Size = new System.Drawing.Size(181, 280);
             // 
             // itemInfo
             // 
@@ -134,12 +140,18 @@ namespace NNPG2_cv4
             this.itemChangeTexture.Text = "Change Texture";
             this.itemChangeTexture.Click += new System.EventHandler(this.ItemChangeTexture_Click);
             // 
+            // itemHatchStyle
+            // 
+            this.itemHatchStyle.Name = "itemHatchStyle";
+            this.itemHatchStyle.Size = new System.Drawing.Size(181, 22);
+            this.itemHatchStyle.Text = "Hatch Style";
+            // 
             // itemAngle
             // 
             this.itemAngle.BackColor = System.Drawing.SystemColors.InactiveCaption;
             this.itemAngle.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.itemAngle.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.itemAngle.MaxLength = 4;
+            this.itemAngle.MaxLength = 5;
             this.itemAngle.Name = "itemAngle";
             this.itemAngle.Size = new System.Drawing.Size(100, 23);
             this.itemAngle.Tag = "Angle";
@@ -274,6 +286,13 @@ namespace NNPG2_cv4
             this.itemAddLineObject.Text = "Line";
             this.itemAddLineObject.Click += new System.EventHandler(this.ItemAddLine_Click);
             // 
+            // itemPrintObject
+            // 
+            this.itemPrintObject.Name = "itemPrintObject";
+            this.itemPrintObject.Size = new System.Drawing.Size(143, 22);
+            this.itemPrintObject.Text = "Print Shape";
+            this.itemPrintObject.Click += new System.EventHandler(this.ItemPrintShape_Click);
+            // 
             // itemExportObject
             // 
             this.itemExportObject.Name = "itemExportObject";
@@ -285,6 +304,20 @@ namespace NNPG2_cv4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
             this.toolStripSeparator4.Size = new System.Drawing.Size(140, 6);
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(143, 22);
+            this.toolStripMenuItem2.Text = "Export";
+            this.toolStripMenuItem2.Click += new System.EventHandler(this.ItemExportCanvas_Click);
+            // 
+            // itemPrint
+            // 
+            this.itemPrint.Name = "itemPrint";
+            this.itemPrint.Size = new System.Drawing.Size(180, 22);
+            this.itemPrint.Text = "Print";
+            this.itemPrint.Click += new System.EventHandler(this.ItemPrintDialog_Click);
             // 
             // itemBackground
             // 
@@ -298,29 +331,24 @@ namespace NNPG2_cv4
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(107, 22);
             this.toolStripMenuItem3.Text = "Color";
             this.toolStripMenuItem3.Click += new System.EventHandler(this.ItemBackgroundColor_Click);
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(107, 22);
             this.toolStripMenuItem4.Text = "Image";
             this.toolStripMenuItem4.Click += new System.EventHandler(this.ItemBackgroundImage_Click);
             // 
-            // toolStripMenuItem2
+            // printDialog
             // 
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(143, 22);
-            this.toolStripMenuItem2.Text = "Export";
-            this.toolStripMenuItem2.Click += new System.EventHandler(this.ItemExportCanvas_Click);
+            this.printDialog.UseEXDialog = true;
             // 
-            // itemHatchStyle
+            // printDialogShape
             // 
-            this.itemHatchStyle.Name = "itemHatchStyle";
-            this.itemHatchStyle.Size = new System.Drawing.Size(181, 22);
-            this.itemHatchStyle.Text = "Hatch Style";
+            this.printDialogShape.UseEXDialog = true;
             // 
             // Canvas
             // 
@@ -375,6 +403,10 @@ namespace NNPG2_cv4
         private System.Windows.Forms.ToolStripTextBox itemAngle;
         private System.Windows.Forms.ToolStripMenuItem itemEdgeEnable;
         private System.Windows.Forms.ToolStripMenuItem itemHatchStyle;
+        private System.Windows.Forms.ToolStripMenuItem itemPrint;
+        private System.Windows.Forms.ToolStripMenuItem itemPrintObject;
+        private System.Windows.Forms.PrintDialog printDialog;
+        private System.Windows.Forms.PrintDialog printDialogShape;
     }
 }
 

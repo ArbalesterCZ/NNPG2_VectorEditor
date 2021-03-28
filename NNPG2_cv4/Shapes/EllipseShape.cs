@@ -1,11 +1,11 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace NNPG2_cv4
 {
     public class EllipseShape : IShape
     {
-        public Brush Fill { get; set; }
         public BrushType Mode { get; set; }
         public float FillAngle { get; set; }
         public Color Primary { get; set; }
@@ -99,6 +99,25 @@ namespace NNPG2_cv4
             if (EdgeEnabled) g.DrawEllipse(Edge, rect);
         }
 
+        public void Print(Graphics g, Rectangle printArea)
+        {
+            float multiplyFactor = Math.Min((float)printArea.Width / rect.Width, (float)printArea.Height / rect.Height);
+
+            Rectangle isolatedRect = new Rectangle(printArea.X, printArea.Y, (int)(rect.Width * multiplyFactor), (int)(rect.Height * multiplyFactor));
+            g.RenderingOrigin = isolatedRect.Location;
+            Brush brush = Brush();
+            if (brush is TextureBrush)
+            {
+                TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
+                tb.TranslateTransform(isolatedRect.X, isolatedRect.Y);
+                tb.ScaleTransform(multiplyFactor, multiplyFactor);
+                tb.RotateTransform(FillAngle);
+                brush = tb;
+            }
+            g.FillEllipse(brush, isolatedRect);
+            if (EdgeEnabled) g.DrawEllipse(Edge, isolatedRect);
+        }
+
         public void Export(string filepath)
         {
             int addend = 0;
@@ -133,6 +152,7 @@ namespace NNPG2_cv4
                 case BrushType.Texture:
                     TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
                     tb.TranslateTransform(rect.X, rect.Y);
+                    tb.RotateTransform(FillAngle);
                     return tb;
                 default:
                     return null;
@@ -151,6 +171,7 @@ namespace NNPG2_cv4
                 case BrushType.Texture:
                     TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
                     tb.TranslateTransform(addend, addend);
+                    tb.RotateTransform(FillAngle);
                     return tb;
                 default:
                     return null;
