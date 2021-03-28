@@ -17,7 +17,6 @@ namespace NNPG2_cv4
         }
 
         private Color color;
-
         private Image image;
         private Brush brush;
 

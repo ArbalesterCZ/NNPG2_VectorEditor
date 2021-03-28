@@ -29,7 +29,7 @@ namespace NNPG2_cv4
         public EllipseShape(Rectangle rect)
         {
             this.rect = rect;
-            Primary = Color.White;
+            Primary = Color.LightGray;
             Secondary = Color.Black;
             Edge = new Pen(Color.Red);
             Mode = BrushType.Solid;

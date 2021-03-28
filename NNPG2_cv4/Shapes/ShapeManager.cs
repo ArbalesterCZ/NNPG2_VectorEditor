@@ -14,13 +14,9 @@ namespace NNPG2_cv4
         private int index = -1;
         private readonly List<IShape> shapes = new List<IShape>();
 
-        public void Duplicate()
+        public void Clear()
         {
-            if(IsFocused)
-            {
-                shapes.Add(Focused.DeepCopy());
-                index = shapes.Count - 1;
-            }
+            shapes.Clear();
         }
 
         public void Add(IShape shape)
@@ -72,6 +68,15 @@ namespace NNPG2_cv4
             shapes.AddRange(tmpList);
             index = shapes.Count - 1;
             shapes[index] = tmp;           
+        }
+
+        public void Duplicate()
+        {
+            if (IsFocused)
+            {
+                shapes.Add(Focused.DeepCopy());
+                index = shapes.Count - 1;
+            }
         }
 
         public void RenderFocusShape(Point coor)

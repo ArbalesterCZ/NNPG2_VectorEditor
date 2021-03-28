@@ -22,8 +22,8 @@ namespace NNPG2_cv4
         private readonly string SAVE_FILTER = "JPEG (*.JPG;*.JPEG)|*.jpg;*.JPEG|GIF (*.GIF)|*.gif|PNG (*.PNG)|*.png|BMP (*.BMP)|*.bmp|TIFF (*.TIFF)|*.tiff";
         private readonly string LOAD_FILTER = "Image Files(*.JPG;*.GIF;*.PNG;*.BMP;*.TIFF)|*.JPG;*.JPEG;*.GIF;*.PNG;*.BMP;*.TIFF|All files (*.*)|*.*";
 
-        private PrintDocument printDocument = new PrintDocument();
-        private PrintDocument printShape = new PrintDocument();
+        private readonly PrintDocument PRINT_DOCUMENT_CANVAS = new PrintDocument();
+        private readonly PrintDocument PRINT_DOCUMENT_SHAPE = new PrintDocument();
 
         private Point start;
         private Point end;
@@ -43,19 +43,9 @@ namespace NNPG2_cv4
             foreach (BrushType type in types) comboFillType.Items.Add(type);
         }
 
-        private void PrintInit()
-        {
-            printDocument.PrintPage += new PrintPageEventHandler(PrintDocument_PrintPage);
-            printShape.PrintPage += new PrintPageEventHandler(PrintDocument_PrintShape);
-
-            printDocument.DocumentName = "NNPG2 Print";
-
-            printDialogShape.Document = printShape;
-            printDialog.Document = printDocument;
-        }
         private void ItemPrintShape_Click(object sender, EventArgs e)
         {
-            try { if (printDialogShape.ShowDialog() == DialogResult.OK) printShape.Print(); } catch (Exception ex) { MessageBox.Show(ex.ToString()); }
+            try { if (printDialogShape.ShowDialog() == DialogResult.OK) PRINT_DOCUMENT_SHAPE.Print(); } catch (Exception ex) { MessageBox.Show(ex.ToString()); }
         }
 
         private void PrintDocument_PrintShape(object sender, PrintPageEventArgs e)
@@ -67,12 +57,12 @@ namespace NNPG2_cv4
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            BACKGROUND.Render(g, e.MarginBounds.X + e.MarginBounds.X +  e.MarginBounds.Width, e.MarginBounds.Y + e.MarginBounds.Y + e.MarginBounds.Height);
+            BACKGROUND.Render(g, 2 * e.MarginBounds.X +  e.MarginBounds.Width, 2 * e.MarginBounds.Y + e.MarginBounds.Height);
             foreach (IShape shape in SHAPE_MANAGER) shape.Render(g);
         }
         private void ItemPrintDialog_Click(object sender, EventArgs e)
         {
-            try { if (printDialog.ShowDialog() == DialogResult.OK) printDocument.Print(); } catch (Exception ex) { MessageBox.Show(ex.ToString()); }
+            try { if (printDialog.ShowDialog() == DialogResult.OK) PRINT_DOCUMENT_CANVAS.Print(); } catch (Exception ex) { MessageBox.Show(ex.ToString()); }
         }
 
         private void Canvas_Paint(object sender, PaintEventArgs e)
@@ -115,10 +105,7 @@ namespace NNPG2_cv4
 
         private void Canvas_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
-            {
-                MouseMove -= new MouseEventHandler(Canvas_ShapeMove);
-            }
+            if (e.Button == MouseButtons.Left) MouseMove -= new MouseEventHandler(Canvas_ShapeMove);
         }
 
         private void Canvas_MouseClick(object sender, MouseEventArgs e)
@@ -163,7 +150,11 @@ namespace NNPG2_cv4
 
         private void ItemDelete_Click(object sender, EventArgs e)
         {
-            SubmitDelete();
+            if (MessageBox.Show("Do you want to delete the shape?", "Delete The Shape", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                SHAPE_MANAGER.Remove();
+                Refresh();
+            }
         }
 
         private void ItemColorPrimary_Click(object sender, EventArgs e)
@@ -242,7 +233,7 @@ namespace NNPG2_cv4
                 255 - BACKGROUND.Color.R,
                 255 - BACKGROUND.Color.G), 2.5f)
             {
-                DashCap = System.Drawing.Drawing2D.DashCap.Flat,
+                DashCap = DashCap.Flat,
                 DashPattern = new float[] { 2.0f, 2.0f }
             };
             addendShape = type;
@@ -346,39 +337,43 @@ namespace NNPG2_cv4
             switch (e.KeyCode)
             {
                 case Keys.Delete:
-                    if(SHAPE_MANAGER.IsFocused)
+                    if (ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Shift))
+                    { 
+                        if(MessageBox.Show("Do you want to delete all shapes?", "Delete All Shape", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                        { 
+                            SHAPE_MANAGER.Clear();
+                            Refresh();
+                        }
+                    }
+                    else if (SHAPE_MANAGER.IsFocused)
                     {
                         MouseMove -= new MouseEventHandler(Canvas_ShapeMove);
-                        SubmitDelete();
+                        if (MessageBox.Show("Do you want to delete the shape?", "Delete The Shape", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                        {
+                            SHAPE_MANAGER.Remove();
+                            Refresh();
+                        }
                     }
                     break;
                 case Keys.D:
                     if (ModifierKeys.HasFlag(Keys.Control)) SHAPE_MANAGER.Duplicate();
                     break;
+                case Keys.P:
+                    if (ModifierKeys.HasFlag(Keys.Control)) 
+                        if (SHAPE_MANAGER.IsFocused) try { if (printDialogShape.ShowDialog() == DialogResult.OK) PRINT_DOCUMENT_SHAPE.Print(); } catch (Exception ex) { MessageBox.Show(ex.ToString()); }
+                        else try { if (printDialog.ShowDialog() == DialogResult.OK) PRINT_DOCUMENT_CANVAS.Print(); } catch (Exception ex) { MessageBox.Show(ex.ToString()); }
+                    break;
+                case Keys.E:
+                    if (ModifierKeys.HasFlag(Keys.Control))
+                        if (SHAPE_MANAGER.IsFocused) ExportShape(); else ExportCanvas();
+                    break;
             }          
-        }
-
-        private void SubmitDelete()
-        {
-            string message = "Do you want to delete the shape?";
-            string title = "Delete Shape";
-            if (MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-            {
-                SHAPE_MANAGER.Remove();
-                Refresh();
-            }
         }
 
         private void TextBoxOnlyNumber_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != ','))
-            {
-                e.Handled = true;
-            }
-            if ((e.KeyChar == ',') && (sender.ToString().IndexOf(',') != -1))
-            {
-                e.Handled = true;
-            }
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != ',')) e.Handled = true;
+            if ((e.KeyChar == ',') && (sender.ToString().IndexOf(',') != -1)) e.Handled = true;
         }
 
         private void TextBoxEdgeWidth_TextChanged(object sender, EventArgs e)
@@ -392,22 +387,12 @@ namespace NNPG2_cv4
 
         private void ItemExportCanvas_Click(object sender, EventArgs e)
         {
-            SAVE_DIALOG.FileName = string.Format("Canvas {0}x{1}", ClientSize.Width, ClientSize.Height);
-            if (Library.FileDialog(SAVE_DIALOG, SAVE_FILTER, out string filepath))
-            {
-                Bitmap bmp = new Bitmap(ClientSize.Width, ClientSize.Height);
-                Render(Graphics.FromImage(bmp));
-                Library.SaveImage(bmp, filepath);
-            }
+            ExportCanvas();
         }
 
         private void ItemExportObject_Click(object sender, EventArgs e)
         {
-            SAVE_DIALOG.FileName = SHAPE_MANAGER.Focused.ToString();
-            if (Library.FileDialog(SAVE_DIALOG, SAVE_FILTER, out string filepath))
-            {
-                SHAPE_MANAGER.Focused.Export(filepath);
-            }
+            ExportShape();
         }
         private void Render(Graphics g)
         {
@@ -419,6 +404,26 @@ namespace NNPG2_cv4
             {
                 g.FillEllipse(Brushes.White, new Rectangle(controlPoint - CONTROL_POINT_SHIFT, CONTROL_POINT_SIZE));
                 g.DrawEllipse(Pens.Black, new Rectangle(controlPoint - CONTROL_POINT_SHIFT, CONTROL_POINT_SIZE));
+            }
+        }
+
+        private void ExportCanvas()
+        {
+            SAVE_DIALOG.FileName = string.Format("Canvas {0}x{1}", ClientSize.Width, ClientSize.Height);
+            if (Library.FileDialog(SAVE_DIALOG, SAVE_FILTER, out string filepath))
+            {
+                Bitmap bmp = new Bitmap(ClientSize.Width, ClientSize.Height);
+                Render(Graphics.FromImage(bmp));
+                Library.SaveImage(bmp, filepath);
+            }
+        }
+
+        private void ExportShape()
+        {
+            SAVE_DIALOG.FileName = SHAPE_MANAGER.Focused.ToString();
+            if (Library.FileDialog(SAVE_DIALOG, SAVE_FILTER, out string filepath))
+            {
+                SHAPE_MANAGER.Focused.Export(filepath);
             }
         }
 
@@ -482,7 +487,7 @@ namespace NNPG2_cv4
 
                 Bitmap bm = new Bitmap(30, 30);
                 Graphics gr = Graphics.FromImage(bm);
-                gr.FillRectangle(new HatchBrush(hStyle, Color.White, Color.Green), new Rectangle(0, 0, 30, 30));
+                gr.FillRectangle(new HatchBrush(hStyle, Color.Green, Color.White), new Rectangle(0, 0, 30, 30));
                 newHatchItem.Image = Image.FromHbitmap(bm.GetHbitmap());
                 newHatchItem.Text = hStyle.ToString();
                 newHatchItem.Tag = hStyle;
@@ -491,6 +496,16 @@ namespace NNPG2_cv4
 
                 itemHatchStyle.DropDownItems.Add(newHatchItem);
             }
+        }
+        private void PrintInit()
+        {
+            PRINT_DOCUMENT_CANVAS.PrintPage += new PrintPageEventHandler(PrintDocument_PrintPage);
+            PRINT_DOCUMENT_SHAPE.PrintPage += new PrintPageEventHandler(PrintDocument_PrintShape);
+
+            PRINT_DOCUMENT_CANVAS.DocumentName = "NNPG2 Print";
+
+            printDialogShape.Document = PRINT_DOCUMENT_SHAPE;
+            printDialog.Document = PRINT_DOCUMENT_CANVAS;
         }
         private void RenderContextMenu(bool isShapeFocused)
         {

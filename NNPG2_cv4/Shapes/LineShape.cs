@@ -13,7 +13,7 @@ namespace NNPG2_cv4
         public Pen Edge { get;}
         public Color EdgeColor { get { return Edge.Color; } set { Edge.Color = value; } }
         public float EdgeWidth { get { return Edge.Width; } set { Edge.Width = value; } }
-        public Size Size { get { return new Size(Math.Abs(start.X - end.X), Math.Abs(start.Y - end.Y)); } }
+        public Size Size { get { return new Size((int)(Math.Abs(start.X - end.X) + EdgeWidth), (int)(Math.Abs(start.Y - end.Y) + EdgeWidth)); } }
         public Image Texture { set { _ = value; } }
         public bool EdgeEnabled { get; set; }
         public HatchStyle Hatch { get; set; }
@@ -92,7 +92,7 @@ namespace NNPG2_cv4
             Size addend = new Size(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y));
             Size addend2 = new Size((int)(EdgeWidth / 2), (int)(EdgeWidth / 2));
 
-            Bitmap bmp = new Bitmap((int)(Size.Width + EdgeWidth), (int)(Size.Height + EdgeWidth));
+            Bitmap bmp = new Bitmap(Size.Width, Size.Height);
 
             Graphics g = Graphics.FromImage(bmp);
             g.SmoothingMode = SmoothingMode.AntiAlias;
