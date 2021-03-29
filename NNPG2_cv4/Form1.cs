@@ -16,9 +16,6 @@ namespace NNPG2_cv4
 
         private readonly Background BACKGROUND = new Background(Color.Black);
 
-        private readonly SaveFileDialog SAVE_DIALOG = new SaveFileDialog();
-        private readonly OpenFileDialog OPEN_DIALOG = new OpenFileDialog();
-
         private readonly string SAVE_FILTER = "JPEG (*.JPG;*.JPEG)|*.jpg;*.JPEG|GIF (*.GIF)|*.gif|PNG (*.PNG)|*.png|BMP (*.BMP)|*.bmp|TIFF (*.TIFF)|*.tiff";
         private readonly string LOAD_FILTER = "Image Files(*.JPG;*.GIF;*.PNG;*.BMP;*.TIFF)|*.JPG;*.JPEG;*.GIF;*.PNG;*.BMP;*.TIFF|All files (*.*)|*.*";
 
@@ -409,8 +406,8 @@ namespace NNPG2_cv4
 
         private void ExportCanvas()
         {
-            SAVE_DIALOG.FileName = string.Format("Canvas {0}x{1}", ClientSize.Width, ClientSize.Height);
-            if (Library.FileDialog(SAVE_DIALOG, SAVE_FILTER, out string filepath))
+            saveFileDialog.FileName = string.Format("Canvas {0}x{1}", ClientSize.Width, ClientSize.Height);
+            if (Library.FileDialog(saveFileDialog, SAVE_FILTER, out string filepath))
             {
                 Bitmap bmp = new Bitmap(ClientSize.Width, ClientSize.Height);
                 Render(Graphics.FromImage(bmp));
@@ -420,8 +417,8 @@ namespace NNPG2_cv4
 
         private void ExportShape()
         {
-            SAVE_DIALOG.FileName = SHAPE_MANAGER.Focused.ToString();
-            if (Library.FileDialog(SAVE_DIALOG, SAVE_FILTER, out string filepath))
+            saveFileDialog.FileName = SHAPE_MANAGER.Focused.ToString();
+            if (Library.FileDialog(saveFileDialog, SAVE_FILTER, out string filepath))
             {
                 SHAPE_MANAGER.Focused.Export(filepath);
             }
@@ -439,7 +436,7 @@ namespace NNPG2_cv4
 
         private void ItemBackgroundImage_Click(object sender, EventArgs e)
         {
-            if (Library.FileDialog(OPEN_DIALOG, LOAD_FILTER, out string filepath))
+            if (Library.FileDialog(openFileDialog, LOAD_FILTER, out string filepath))
             {
                 BACKGROUND.Image = Image.FromFile(filepath);
                 Refresh();
@@ -448,7 +445,7 @@ namespace NNPG2_cv4
 
         private void ItemChangeTexture_Click(object sender, EventArgs e)
         {
-            if (Library.FileDialog(OPEN_DIALOG, LOAD_FILTER, out string filepath))
+            if (Library.FileDialog(openFileDialog, LOAD_FILTER, out string filepath))
             {
                 SHAPE_MANAGER.Focused.Texture = Image.FromFile(filepath);
                 Refresh();
