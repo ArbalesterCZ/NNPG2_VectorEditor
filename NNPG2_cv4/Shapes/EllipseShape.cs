@@ -105,8 +105,13 @@ namespace NNPG2_cv4
                     }
                     break;
                 case 1:
-                    if (rect.Width + addend.Width > 1) rect.Width += addend.Width;
+                    if (rect.Width + addend.Width > 1) rect.Width += addend.Width; 
                     if (rect.Height + addend.Height > 1) rect.Height += addend.Height;
+                    if (brush is LinearGradientBrush lb)
+                    {
+                        lb = new LinearGradientBrush(rect, primary, secondary, fillAngle); 
+                        brush = lb;
+                    }                 
                     break;
             }
         }
