@@ -208,5 +208,15 @@ namespace NNPG2_cv4
                     return null;
             }
         }
+
+        public RectangleShape TransformToRectangle()
+        {
+            return new RectangleShape(rect, primary, secondary, EdgeColor, EdgeWidth, EdgeEnabled, mode, texture);
+        }
+
+        public EllipseShape TransformToEllipse()
+        {
+            return new EllipseShape(rect, primary, secondary, EdgeColor, EdgeWidth, EdgeEnabled, mode, texture);
+        }
     }
 }

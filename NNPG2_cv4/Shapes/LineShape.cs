@@ -104,5 +104,25 @@ namespace NNPG2_cv4
         {
             return new LineShape(start, end, EdgeColor, EdgeWidth);
         }
+
+        public RectangleShape TransformToRectangle()
+        {
+            Size rectSize = new Size(Math.Abs(start.X - end.X), Math.Abs(start.Y - end.Y));
+            int left = start.X < end.X ? start.X : end.X;
+            int top = start.Y < end.Y ? start.Y : end.Y;
+            Point location = new Point(left, top);
+
+            return new RectangleShape(new Rectangle(location, rectSize), Primary, Secondary, EdgeColor, EdgeWidth, true, Mode, Library.DEFAULT_TEXTURE);
+        }
+
+        public EllipseShape TransformToEllipse()
+        {
+            Size rectSize = new Size(Math.Abs(start.X - end.X), Math.Abs(start.Y - end.Y));
+            int left = start.X < end.X ? start.X : end.X;
+            int top = start.Y < end.Y ? start.Y : end.Y;
+            Point location = new Point(left, top);
+
+            return new EllipseShape(new Rectangle(location, rectSize), Primary, Secondary, EdgeColor, EdgeWidth, true, Mode, Library.DEFAULT_TEXTURE);
+        }
     }
 }

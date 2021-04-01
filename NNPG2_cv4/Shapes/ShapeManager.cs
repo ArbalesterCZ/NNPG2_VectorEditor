@@ -107,12 +107,19 @@ namespace NNPG2_cv4
         {
             foreach (Point p in Focused.ControlPoints())
             {
-                if (Library.DistancePoint(p, coor) <= 15)
-                {
-                    return true;
-                }
+                if (Library.DistancePoint(p, coor) <= 15) return true;
             }
             return false;
+        }
+
+        public void TransformToRectangle()
+        {
+            shapes[index] = shapes[index].TransformToRectangle();
+        }
+
+        public void TransformToEllipse()
+        {
+            shapes[index] = shapes[index].TransformToEllipse();
         }
 
         public IEnumerator<IShape> GetEnumerator()

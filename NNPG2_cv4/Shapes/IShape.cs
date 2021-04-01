@@ -19,6 +19,9 @@ namespace NNPG2_cv4
 
         IShape DeepCopy();
 
+        RectangleShape TransformToRectangle();
+        EllipseShape TransformToEllipse();
+
         void Render(Graphics g);
 
         void Print(Graphics g, Rectangle printArea);

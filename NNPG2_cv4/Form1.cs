@@ -507,8 +507,10 @@ namespace NNPG2_cv4
         private void RenderContextMenu(bool isShapeFocused)
         {
             itemSeparator.Visible = isShapeFocused;
-            itemExportObject.Visible = isShapeFocused;
+            itemTransform.Visible = isShapeFocused;
             itemPrintObject.Visible = isShapeFocused;
+            itemExportObject.Visible = isShapeFocused;
+            
             itemDelete.Visible = isShapeFocused;
             ItemMove.Visible = isShapeFocused;
             itemEdge.Visible = isShapeFocused;
@@ -552,12 +554,12 @@ namespace NNPG2_cv4
                 itemAngle.Text = SHAPE_MANAGER.Focused.FillAngle.ToString();
                 textBoxEdgeWidth.Text = SHAPE_MANAGER.Focused.EdgeWidth.ToString();
                 itemEdgeEnable.Checked = SHAPE_MANAGER.Focused.EdgeEnabled;
-                bool isLine = SHAPE_MANAGER.Focused is LineShape;
 
                 SetItemColor(itemPrimaryColor, SHAPE_MANAGER.Focused.Primary);
                 SetItemColor(itemSecondaryColor, SHAPE_MANAGER.Focused.Secondary);
                 SetItemColor(itemEdgeColor, SHAPE_MANAGER.Focused.EdgeColor);
 
+                bool isLine = SHAPE_MANAGER.Focused is LineShape;
                 itemEdgeEnable.Visible = !isLine;
                 itemFill.Visible = !isLine;
 
@@ -565,7 +567,20 @@ namespace NNPG2_cv4
                 Graphics gr = Graphics.FromImage(bm);
                 gr.FillRectangle(new HatchBrush(SHAPE_MANAGER.Focused.Hatch, SHAPE_MANAGER.Focused.Primary, SHAPE_MANAGER.Focused.Secondary), new Rectangle(0, 0, 30, 30));
                 itemHatchStyle.Image = Image.FromHbitmap(bm.GetHbitmap());
+
+                itemTransformToRectangle.Enabled = !(SHAPE_MANAGER.Focused is RectangleShape);
+                itemTransformToEllipse.Enabled = !(SHAPE_MANAGER.Focused is EllipseShape);
             }
+        }
+
+        private void ItemTransformToRectangle_Click(object sender, EventArgs e)
+        {
+            SHAPE_MANAGER.TransformToRectangle();
+        }
+
+        private void ItemTransformToEllipse_Click(object sender, EventArgs e)
+        {
+            SHAPE_MANAGER.TransformToEllipse();
         }
     }  
 }
