@@ -83,7 +83,7 @@ namespace NNPG2_cv4
         public void TransformMove(Size addend)
         {
             rect.Location += addend;
-            RenderBrush(addend.Width, addend.Height);
+            CreateBrush();
         }
 
         public void TransformScale(Size addend, int index)
@@ -95,25 +95,19 @@ namespace NNPG2_cv4
                     {
                         rect.X += addend.Width;
                         rect.Width -= addend.Width;
-                        RenderBrush(addend.Width, 0);
                     }
                     if (rect.Height - addend.Height > 1)
                     {
                         rect.Y += addend.Height;
                         rect.Height -= addend.Height;
-                        RenderBrush(0, addend.Height);
                     }
                     break;
                 case 1:
                     if (rect.Width + addend.Width > 1) rect.Width += addend.Width; 
                     if (rect.Height + addend.Height > 1) rect.Height += addend.Height;
-                    if (brush is LinearGradientBrush lb)
-                    {
-                        lb = new LinearGradientBrush(rect, primary, secondary, fillAngle); 
-                        brush = lb;
-                    }                 
                     break;
             }
+            CreateBrush();
         }
 
         public void Render(Graphics g)
@@ -170,11 +164,11 @@ namespace NNPG2_cv4
                 case BrushType.Solid:
                     brush = new SolidBrush(primary);
                     break;
-                case BrushType.Hatch:
-                    brush = new HatchBrush(hatch, primary, secondary);
-                    break;
                 case BrushType.Gradient:
                     brush = new LinearGradientBrush(rect, primary, secondary, fillAngle);
+                    break;
+                case BrushType.Hatch:
+                    brush = new HatchBrush(hatch, primary, secondary);
                     break;
                 case BrushType.Texture:
                     TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
@@ -183,12 +177,6 @@ namespace NNPG2_cv4
                     brush = tb;
                     break;
             }
-        }
-
-        private void RenderBrush(int x, int y)
-        {
-            if (brush is TextureBrush tb) tb.TranslateTransform(x, y);
-            else CreateBrush();
         }
 
         private Brush IsolationBrush(int addend)

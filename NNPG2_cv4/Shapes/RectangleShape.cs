@@ -6,11 +6,11 @@ namespace NNPG2_cv4
 {
     public class RectangleShape : IShape
     {
-        public BrushType Mode { get { return mode; } set { mode = value; CreateBrush(); } }
-        public HatchStyle Hatch { get { return hatch; } set { hatch = value; CreateBrush(); } }
-        public float FillAngle { get { return fillAngle; } set { fillAngle = value; CreateBrush(); } }
-        public Color Primary { get { return primary; } set { primary = value; CreateBrush(); } }
-        public Color Secondary { get { return secondary; } set { secondary = value; CreateBrush(); } }
+        public BrushType Mode { get { return mode; } set { mode = value; brush = CreateBrush(rect); } }
+        public HatchStyle Hatch { get { return hatch; } set { hatch = value; brush = CreateBrush(rect); } }
+        public float FillAngle { get { return fillAngle; } set { fillAngle = value; brush = CreateBrush(rect); } }
+        public Color Primary { get { return primary; } set { primary = value; brush = CreateBrush(rect); } }
+        public Color Secondary { get { return secondary; } set { secondary = value; brush = CreateBrush(rect); } }
         public Pen Edge { get; }
         public Color EdgeColor { get { return Edge.Color; } set { Edge.Color = value; } }
         public float EdgeWidth { get { return Edge.Width; } set { Edge.Width = value; } }
@@ -24,7 +24,7 @@ namespace NNPG2_cv4
                 return new Size((int)(rect.Width + addend), (int)(rect.Height + addend));
             }
         }
-        public Image Texture { set { texture = value; CreateBrush(); } }
+        public Image Texture { set { texture = value; brush = CreateBrush(rect); } }
 
         private HatchStyle hatch;
         private Brush brush;
@@ -47,7 +47,7 @@ namespace NNPG2_cv4
             EdgeEnabled = true;
             texture = Library.DEFAULT_TEXTURE;
 
-            CreateBrush();
+            brush = CreateBrush(rect);
         }
 
         public RectangleShape(Rectangle rect, Color primary, Color secondary, Color edge, float edgeWitdh, bool edgeEnable, BrushType mode, Image texture)
@@ -60,7 +60,7 @@ namespace NNPG2_cv4
             EdgeEnabled = edgeEnable;
             this.texture = texture;
             
-            CreateBrush();
+            brush = CreateBrush(rect);
         }
 
         override public string ToString()
@@ -81,7 +81,7 @@ namespace NNPG2_cv4
         public void TransformMove(Size addend)
         {
             rect.Location += addend;
-            RenderBrush(addend.Width, addend.Height);
+            brush = CreateBrush(rect);
         }
 
         public void TransformScale(Size addend, int index)
@@ -93,25 +93,19 @@ namespace NNPG2_cv4
                     {
                         rect.X += addend.Width;
                         rect.Width -= addend.Width;
-                        RenderBrush(addend.Width, 0);
                     }
                     if (rect.Height - addend.Height > 1)
                     {
                         rect.Y += addend.Height;
                         rect.Height -= addend.Height;
-                        RenderBrush(0, addend.Height);
                     }        
                     break;
                 case 1:
                     if (rect.Width + addend.Width > 1) rect.Width += addend.Width;
                     if (rect.Height + addend.Height > 1) rect.Height += addend.Height;
-                    if (brush is LinearGradientBrush lb)
-                    {
-                        lb = new LinearGradientBrush(rect, primary, secondary, fillAngle);
-                        brush = lb;
-                    }
                     break;
-            }           
+            }
+            brush = CreateBrush(rect);
         }
 
         public void Render(Graphics g)
@@ -127,16 +121,16 @@ namespace NNPG2_cv4
 
             Rectangle isolatedRect = new Rectangle(printArea.X, printArea.Y, (int)(rect.Width * multiplyFactor), (int)(rect.Height * multiplyFactor));
             g.RenderingOrigin = isolatedRect.Location;
-            Brush brusprintBrush = brush;
-            if (brusprintBrush is TextureBrush)
+            Brush printBrush = CreateBrush(isolatedRect);
+            if (printBrush is TextureBrush)
             {
                 TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
                 tb.TranslateTransform(isolatedRect.X, isolatedRect.Y);
                 tb.ScaleTransform(multiplyFactor, multiplyFactor);
                 tb.RotateTransform(FillAngle);
-                brusprintBrush = tb;          
+                printBrush = tb;
             }
-            g.FillRectangle(brusprintBrush, isolatedRect);
+            g.FillRectangle(printBrush, isolatedRect);
             if (EdgeEnabled) g.DrawRectangle(Edge, isolatedRect);
         }
 
@@ -161,32 +155,24 @@ namespace NNPG2_cv4
             return new RectangleShape(rect, primary, secondary, EdgeColor, EdgeWidth, EdgeEnabled, mode, texture);
         }
 
-        private void CreateBrush()
+        private Brush CreateBrush(Rectangle rectangle)
         {
             switch (Mode)
             {
                 case BrushType.Solid:
-                    brush = new SolidBrush(primary);
-                    break;
+                    return  new SolidBrush(primary);
                 case BrushType.Gradient:
-                    brush = new LinearGradientBrush(rect, primary, secondary, fillAngle);
-                    break;
+                    return  new LinearGradientBrush(rectangle, primary, secondary, fillAngle);
                 case BrushType.Hatch:
-                    brush = new HatchBrush(hatch, primary, secondary);
-                    break;
+                    return new HatchBrush(hatch, primary, secondary);
                 case BrushType.Texture:
                     TextureBrush tb = new TextureBrush(texture, WrapMode.Tile);
-                    tb.TranslateTransform(rect.X, rect.Y);
+                    tb.TranslateTransform(rectangle.X, rectangle.Y);
                     tb.RotateTransform(fillAngle);
-                    brush = tb;
-                    break;
+                    return tb;
+                default:
+                    return null;
             }
-        }
-
-        private void RenderBrush(int x, int y)
-        {
-            if (brush is TextureBrush tb) tb.TranslateTransform(x, y);
-            else CreateBrush();
         }
 
         private Brush IsolationBrush(int addend)

@@ -14,4 +14,10 @@
         Ellipse,
         Line
     }
+    public enum PrintStyle
+    {
+        Proportional,
+        Raw,
+        Experimental
+    }
 }

@@ -22,6 +22,9 @@ namespace NNPG2_cv4
         private readonly PrintDocument PRINT_DOCUMENT_CANVAS = new PrintDocument();
         private readonly PrintDocument PRINT_DOCUMENT_SHAPE = new PrintDocument();
 
+        private bool printBackground;
+        private PrintStyle printStyle = PrintStyle.Proportional;
+
         private Point start;
         private Point end;
 
@@ -52,10 +55,44 @@ namespace NNPG2_cv4
 
         private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)
         {
+            
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            BACKGROUND.Render(g, 2 * e.MarginBounds.X +  e.MarginBounds.Width, 2 * e.MarginBounds.Y + e.MarginBounds.Height);
-            foreach (IShape shape in SHAPE_MANAGER) shape.Render(g);
+            if (printBackground)  BACKGROUND.Render(g, 2 * e.MarginBounds.X +  e.MarginBounds.Width, 2 * e.MarginBounds.Y + e.MarginBounds.Height);
+            switch (printStyle)
+            {
+                case PrintStyle.Raw:
+                    foreach (IShape shape in SHAPE_MANAGER) shape.Render(g);
+                    break;
+                case PrintStyle.Proportional:
+                    float printRatioX = (float)e.MarginBounds.Width / ClientSize.Width;
+                    float printRatioY = (float)e.MarginBounds.Height / ClientSize.Height;
+                    float printRatio;
+
+                    float addendX = 0;
+                    float addendY = 0;
+
+                    if (printRatioX < printRatioY)
+                    {
+                        printRatio = printRatioX;
+                        addendY = (e.MarginBounds.Height - ClientSize.Height * printRatio) / 2f;
+                    }
+                    else
+                    {
+                        printRatio = printRatioY;
+                        addendX = (e.MarginBounds.Width - ClientSize.Width * printRatio) / 2f;
+                    }
+                    g.TranslateTransform(e.MarginBounds.Left + addendX, e.MarginBounds.Top + addendY);
+                    g.ScaleTransform(printRatio, printRatio);    
+                    
+                    foreach (IShape shape in SHAPE_MANAGER) shape.Render(g);
+                    g.ScaleTransform(e.MarginBounds.Width, e.MarginBounds.Height);
+                    g.ResetTransform();
+                    break;
+                case PrintStyle.Experimental:
+                    foreach (IShape shape in SHAPE_MANAGER) shape.Print(g, e.MarginBounds);
+                    break;
+            }            
         }
         private void ItemPrintDialog_Click(object sender, EventArgs e)
         {
@@ -581,6 +618,69 @@ namespace NNPG2_cv4
         private void ItemTransformToEllipse_Click(object sender, EventArgs e)
         {
             SHAPE_MANAGER.TransformToEllipse();
+        }
+
+        private void ItemPrintSetting_Click(object sender, EventArgs e)
+        {
+            PrintCustomSetting();
+        }
+
+        private void PrintByCustomSetting()
+        {
+            try { if (printDialog.ShowDialog() == DialogResult.OK) PRINT_DOCUMENT_CANVAS.Print(); } catch (Exception ex) { MessageBox.Show(ex.ToString()); }
+        }
+
+        public void PrintCustomSetting()
+        {
+            Form prompt = new Form { Width = 500, Height = 200, Text = "Print Setting" };
+            prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
+
+            GroupBox group = new GroupBox();
+
+            CheckBox background = new CheckBox() { Text = "Background", Left = 50, Top = 25 };
+            RadioButton proportional = new RadioButton() { Text = "Proportional", Left = 50, Top = 50 };
+            RadioButton raw = new RadioButton() { Text = "Raw", Left = 50, Top = 75 };
+            RadioButton experimental = new RadioButton() { Text = "Experimental", Left = 50, Top = 100 };
+
+            NumericUpDown inputBox = new NumericUpDown() { Left = 50, Top = 50, Width = 400 };
+
+            Button cancel = new Button() { Text = "Cancel", Left = 150, Width = 100, Top = 125 };
+            Button apply = new Button() { Text = "Apply", Left = 250, Width = 100, Top = 125 };
+            Button confirmation = new Button() { Text = "Print", Left = 350, Width = 100, Top = 125 };
+
+            proportional.Checked = printStyle.Equals(PrintStyle.Proportional);
+            raw.Checked = printStyle.Equals(PrintStyle.Raw);
+            experimental.Checked = printStyle.Equals(PrintStyle.Experimental);
+
+            group.Controls.Add(raw);
+            group.Controls.Add(proportional);
+            group.Controls.Add(experimental);
+
+            background.Checked = printBackground;
+            cancel.Click += (sender, e) => { prompt.Close(); };
+            apply.Click += (sender, e) => { 
+                printBackground = background.Checked;
+                if (raw.Checked) printStyle = PrintStyle.Raw;
+                else if (proportional.Checked) printStyle = PrintStyle.Proportional;
+                else printStyle = PrintStyle.Experimental;
+            };
+            confirmation.Click += (sender, e) => {
+                printBackground = background.Checked;
+                if (raw.Checked) printStyle = PrintStyle.Raw;
+                else if (proportional.Checked) printStyle = PrintStyle.Proportional;
+                else printStyle = PrintStyle.Experimental;
+                PrintByCustomSetting(); 
+            };
+
+            prompt.Controls.Add(background);
+            prompt.Controls.Add(proportional);
+            prompt.Controls.Add(raw);
+            prompt.Controls.Add(experimental);
+            prompt.Controls.Add(cancel);
+            prompt.Controls.Add(apply);
+            prompt.Controls.Add(confirmation);
+            
+            prompt.ShowDialog();
         }
     }  
 }
